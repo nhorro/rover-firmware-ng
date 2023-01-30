@@ -52,7 +52,7 @@ void application::setup()
 	HAL_NVIC_SetPriority(this->uart_tctm_interrupt, 0, 0);
 	HAL_NVIC_EnableIRQ(this->uart_tctm_interrupt);
 
-	this->read_telecommands();
+	//this->read_telecommands();
 }
 
 void application::read_telecommands()
