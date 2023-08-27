@@ -3,6 +3,22 @@ Rover firmware for STM32 (Next Generation)
 
 This repository contains the firmware to control a 4WD rover. The software and pinout has been is customized to the [STM32 F767ZITX microcontroller](https://www.st.com/en/microcontrollers-microprocessors/stm32f767zi.html), but it can be easily ported to other STM32 targets that support CUBEMx HAL.
 
+Instructions
+------------
+
+**Requirements**
+
+- Hardware:
+    - [Nucleo-f767zi](https://www.st.com/en/evaluation-tools/nucleo-f767zi.html).
+- Software:
+    - [STM32CubeIde](https://www.st.com/en/development-tools/stm32cubeide.html)
+    - Python 3+.
+
+**Procedure**
+
+1. Import project in [STM32CubeIde](https://www.st.com/en/development-tools/stm32cubeide.html) and download to Nucleo.
+2. Communicate with the firmware with the [Python notebooks](./Python/).
+
 Code organization
 -----------------
 
