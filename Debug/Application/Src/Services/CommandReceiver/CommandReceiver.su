@@ -1,0 +1,16 @@
+../Application/Inc/Telecommands.h:22:7:void ApplicationTelecommandHeader::FromBytes(const uint8_t*)	16	static
+../Application/Inc/Telecommands.h:36:7:void LedControlCommand::FromBytes(const uint8_t*)	16	static
+../Application/Inc/Telecommands.h:52:7:void ControlMotorManualCommand::FromBytes(const uint8_t*)	24	static
+../Application/Inc/Telecommands.h:75:7:void ControlMotorAutoCommand::FromBytes(const uint8_t*)	16	static
+../Application/Inc/Telecommands.h:91:7:void SetMotorControlModeCommand::FromBytes(const uint8_t*)	16	static
+../Application/Src/Services/CommandReceiver/CommandReceiver.cpp:9:1:CommandReceiverService::CommandReceiverService()	24	static
+../Application/Src/Services/CommandReceiver/CommandReceiver.cpp:21:1:CommandReceiverService::~CommandReceiverService()	16	static
+../Application/Src/Services/CommandReceiver/CommandReceiver.cpp:27:6:void CommandReceiverService::Main(void*)	32	static
+../Application/Src/Services/CommandReceiver/CommandReceiver.cpp:81:6:void CommandReceiverTaskMain(void*)	16	static
+../Application/Src/Services/CommandReceiver/CommandReceiver.cpp:91:6:bool CommandReceiverService::CmdControlLeds(const uint8_t*)	24	static
+../Application/Src/Services/CommandReceiver/CommandReceiver.cpp:100:6:bool CommandReceiverService::CmdControlMotorManual(const uint8_t*)	32	static
+../Application/Src/Services/CommandReceiver/CommandReceiver.cpp:120:6:bool CommandReceiverService::CmdControlMotorAuto(const uint8_t*)	32	static
+../Application/Src/Services/CommandReceiver/CommandReceiver.cpp:138:6:bool CommandReceiverService::CmdControlMotorMode(const uint8_t*)	24	static
+../Application/Src/Services/CommandReceiver/CommandReceiver.cpp:146:1:void __static_initialization_and_destruction_0(int, int)	16	static
+../Application/Src/Services/CommandReceiver/CommandReceiver.cpp:146:1:cpp)	8	static
+../Application/Src/Services/CommandReceiver/CommandReceiver.cpp:146:1:cpp)	8	static
