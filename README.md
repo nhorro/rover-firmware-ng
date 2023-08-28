@@ -26,7 +26,7 @@ Instructions
       - [1x GPS Neo6M](https://articulo.mercadolibre.com.ar/MLA-684956175-neo6m-gy-gps6mv2-gps-apm25-neo-6m-modulo-antena-a0129-_JM#position=2&search_layout=grid&type=item&tracking_id=110a4426-ee0b-4a96-8a97-0db8e81b4a8f).
     - Actuators:
       - [L298N motor controller module](https://candy-ho.com/producto/doble-puente-h-driver-l298n-motor-dc-arduino-arm-avr-l298/).    
-    - 4WD Chassis kit:
+    - [4WD Chassis kit](https://articulo.mercadolibre.com.ar/MLA-621167979-kit-chasis-auto-robot-smart-car-4wd-4-ruedas-motores-arduino-_JM)
         - 4x DC Motors wtih gear reduction + wheels.
         - 1x Battery holder x2 18650 (8.4v).
         - 2x 18650 batteries.
