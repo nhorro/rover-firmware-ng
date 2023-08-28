@@ -34,6 +34,8 @@ Instructions
     - [STM32CubeIde](https://www.st.com/en/development-tools/stm32cubeide.html)
     - Python 3+ (tested in Conda base enviroment).
 
+The [hardware setup section](./Documentation/HardwareSetup.md) describes the pin assignment.
+
 **Procedure**
 
 1. Import project in [STM32CubeIde](https://www.st.com/en/development-tools/stm32cubeide.html) and download to Nucleo.
