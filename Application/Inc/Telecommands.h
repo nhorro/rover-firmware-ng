@@ -5,6 +5,8 @@
 #include "cmsis_os.h"
 #include <cstring>
 
+#include "Endianness.h"
+
 enum ApplicationTelecommandId {
 	ControlLeds = 0,
 	ControlMotorManual,
@@ -42,6 +44,7 @@ struct LedControlCommand
 
 
 
+
 #pragma pack(1)
 struct ControlMotorManualCommand
 {
@@ -51,14 +54,9 @@ struct ControlMotorManualCommand
 
 	void FromBytes(const uint8_t* payload)
 	{
-		uint32_t tmp;
-
-		MotorControlFlags = __builtin_bswap32(*((uint32_t*)&payload[0]));
-
-		tmp =  __builtin_bswap32(*((uint32_t*)&payload[1]));
-		memcpy(&MotorAThrottle, &tmp, sizeof(float));
-		tmp = __builtin_bswap32(*((uint32_t*)&payload[2]));
-		memcpy(&MotorBThrottle, &tmp, sizeof(float));
+		MotorControlFlags = __builtin_bswap32(*(uint32_t*)&payload[0]);
+		MotorAThrottle = SwapFloat(&payload[4]);
+		MotorBThrottle = SwapFloat(&payload[8]);
 	}
 };
 #pragma pack(0)
@@ -75,8 +73,8 @@ struct ControlMotorAutoCommand
 	void FromBytes(const uint8_t* payload)
 	{
 		MotorControlFlags = __builtin_bswap32(*((uint32_t*)&payload[0]));
-		MotorASpeed = static_cast<float>(__builtin_bswap32(*((uint32_t*)&payload[1])));
-		MotorBSpeed = static_cast<float>(__builtin_bswap32(*((uint32_t*)&payload[2])));
+		MotorASpeed = SwapFloat(&payload[4]);
+		MotorBSpeed = SwapFloat(&payload[8]);
 	}
 };
 #pragma pack(0)
