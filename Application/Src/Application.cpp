@@ -59,6 +59,36 @@ void Application::set_error(error_code ec)
 }
 
 
+void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin)
+{
+	switch(GPIO_Pin)
+	{
+		case TACHO1_Pin: {
+			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+			//app.increment_wheel_ticks(0);
+		} break;
+
+		case TACHO2_Pin: {
+			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+			//app.increment_wheel_ticks(1);
+		} break;
+
+		case TACHO3_Pin: {
+			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+			//app.increment_wheel_ticks(2);
+		} break;
+
+		case TACHO4_Pin: {
+			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+			//app.increment_wheel_ticks(3);
+		} break;
+
+		default: {
+			__NOP();
+		}
+	};
+}
+
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* UartHandle)
 {

@@ -30,12 +30,12 @@ Note: with vehicle facing forward: LF=Left/Front, RB=Right/Back,etc.
 
 | L298N pin | Nucleo pin   | Wire color |
 | --------- | ------------ | ---------- |
-| ENA       | PB_11 (CN10) |            |
-| IN1       | PE_10 (CN10) |            |
-| IN2       | PE_12 (CN10) |            |
-| IN3       | PE_14 (CN10) |            |
-| IN4       | PE_15 (CN10) |            |
-| ENB       | PB_10 (CN10) |            |
+| ENA       | PB_11 (CN10) | Green      |
+| IN1       | PE_10 (CN10) | White      |
+| IN2       | PE_12 (CN10) | Green      |
+| IN3       | PE_14 (CN10) | White      |
+| IN4       | PE_15 (CN10) | Green      |
+| ENB       | PB_10 (CN10) | White      |
 
 ### L298N - Nucleo
 
