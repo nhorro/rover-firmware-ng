@@ -65,21 +65,25 @@ void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin)
 	{
 		case TACHO1_Pin: {
 			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+			App.TachometerTicks[0]++;
 			//app.increment_wheel_ticks(0);
 		} break;
 
 		case TACHO2_Pin: {
 			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+			App.TachometerTicks[1]++;
 			//app.increment_wheel_ticks(1);
 		} break;
 
 		case TACHO3_Pin: {
 			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+			App.TachometerTicks[2]++;
 			//app.increment_wheel_ticks(2);
 		} break;
 
 		case TACHO4_Pin: {
 			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+			App.TachometerTicks[3]++;
 			//app.increment_wheel_ticks(3);
 		} break;
 

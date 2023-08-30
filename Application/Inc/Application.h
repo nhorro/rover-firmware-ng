@@ -55,6 +55,7 @@ public:
 	float MotorThrottles[2] = { 0, 0 };
 	float MotorSetpointSpeeds[2] = { 0, 0 };
 	float TachometerMeasuredSpeed[4] = { 0, 0, 0, 0 };
+	uint32_t TachometerTicks[4] = { 0, 0, 0, 0 };
 
 	static constexpr size_t CommandMailboxSize = 16; // Match queue size?
 	static constexpr size_t MaxCommandSizeInBytes = 32;

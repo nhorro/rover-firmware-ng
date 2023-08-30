@@ -56,10 +56,10 @@ void TelemetrySenderService::SendMotorReport()
 	App.MotorControlTelemetry.Throttle1 = __builtin_bswap32(reinterpret_cast<uint32_t&>(App.MotorThrottles[0]));;
 	App.MotorControlTelemetry.Throttle2 = __builtin_bswap32(reinterpret_cast<uint32_t&>(App.MotorThrottles[1]));;
 
-	App.MotorControlTelemetry.Tachometer1 = 0;
-	App.MotorControlTelemetry.Tachometer2 = 0;
-	App.MotorControlTelemetry.Tachometer3 = 0;
-	App.MotorControlTelemetry.Tachometer4 = 0;
+	App.MotorControlTelemetry.Tachometer1 = __builtin_bswap32(App.TachometerTicks[0]);
+	App.MotorControlTelemetry.Tachometer2 = __builtin_bswap32(App.TachometerTicks[1]);
+	App.MotorControlTelemetry.Tachometer3 = __builtin_bswap32(App.TachometerTicks[2]);
+	App.MotorControlTelemetry.Tachometer4 = __builtin_bswap32(App.TachometerTicks[3]);
 
 	App.MotorControlTelemetry.MeasuredSpeed1 = __builtin_bswap32(reinterpret_cast<uint32_t&>(App.TachometerMeasuredSpeed[0]));
 	App.MotorControlTelemetry.MeasuredSpeed2 = __builtin_bswap32(reinterpret_cast<uint32_t&>(App.TachometerMeasuredSpeed[1]));
