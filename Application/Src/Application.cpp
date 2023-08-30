@@ -59,6 +59,40 @@ void Application::set_error(error_code ec)
 }
 
 
+void setPWM(TIM_HandleTypeDef* timer, uint32_t channel, uint16_t pulse)
+{
+	HAL_TIM_PWM_Stop(timer, channel); // stop generation of pwm
+	TIM_OC_InitTypeDef sConfigOC;
+	//timer->Init.Period = period; // set the period duration
+	timer->Init.Period = 1000;
+	HAL_TIM_PWM_Init(timer); // reinititialise with new period value
+	sConfigOC.OCMode = TIM_OCMODE_PWM1;
+	sConfigOC.Pulse = pulse; // set the pulse duration
+	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+	HAL_TIM_PWM_ConfigChannel(timer, &sConfigOC, channel);
+	HAL_TIM_PWM_Start(timer, channel); // start pwm generation
+}
+
+void Application::UpdateMotorThrottle(uint32_t flags)
+{
+	static constexpr const uint32_t MaxThrottlePulseWidth = 1000.0;
+
+	if (flags & 1)
+	{
+		setPWM(Config->PwmTimerHandle,TIM_CHANNEL_3,MotorThrottles[0]*MaxThrottlePulseWidth);
+	}
+
+	if (flags & 2)
+	{
+		setPWM(Config->PwmTimerHandle,TIM_CHANNEL_4,MotorThrottles[1]*MaxThrottlePulseWidth);
+	}
+}
+
+
+
+
+
 void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin)
 {
 	switch(GPIO_Pin)

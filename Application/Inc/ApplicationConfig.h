@@ -6,6 +6,7 @@
 
 typedef struct _ApplicationConfig{
 	UART_HandleTypeDef* UartTcTmHandle;
+	TIM_HandleTypeDef*  PwmTimerHandle;
 	osMessageQueueId_t CommandReceiverQueueHandle;
 } ApplicationConfig;
 

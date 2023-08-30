@@ -65,6 +65,8 @@ public:
 	uint8_t CurrentCommandMailboxIdx = 0;
 
 
+	void UpdateMotorThrottle(uint32_t flags);
+
 private:
 	// TC&TM
 
@@ -72,6 +74,10 @@ private:
 	uint8_t RxBuf;
 	void handle_packet(const uint8_t* payload, uint8_t n) override;
 	void set_error(error_code ec) override;
+
+
+
+
 
 	/**
 	 *

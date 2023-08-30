@@ -105,14 +105,22 @@ bool CommandReceiverService::CmdControlMotorManual(const uint8_t* payload)
 	if ( cmd.MotorControlFlags & 1 )
 	{
 		App.MotorThrottles[0] = cmd.MotorAThrottle;
-		// TODO: Update motors
+		if(App.MotorThrottles[0]< -1.0)
+			App.MotorThrottles[0] = -1.0;
+		else if(App.MotorThrottles[0] > 1.0)
+			App.MotorThrottles[0] = 1.0;
 	}
 
 	if ( cmd.MotorControlFlags & 2 )
 	{
 		App.MotorThrottles[1] = cmd.MotorBThrottle;
-		// TODO: Update motors
+		if(App.MotorThrottles[1]< -1.0)
+			App.MotorThrottles[1] = -1.0;
+		else if(App.MotorThrottles[1] > 1.0)
+			App.MotorThrottles[1] = 1.0;
 	}
+
+	App.UpdateMotorThrottle(cmd.MotorControlFlags);
 
 	return true;
 }
