@@ -10,6 +10,8 @@
 
 #include "Telemetry.h"
 
+#include "Controllers/PidController.h"
+
 extern "C" {
 	void ApplicationMain(const ApplicationConfig* Config);
 }
@@ -42,6 +44,7 @@ public:
 
 	// Telemetry is now public, then refactor
 	uint32_t TelemetryCycle = 0;
+	uint32_t OnBoardTime = 0; // Onboard time in usecs
 	uint32_t ReceivedPackets = 0;
 	uint32_t LedControlState = 0;
 	uint32_t LastCommandOpcode = 0;
@@ -56,6 +59,7 @@ public:
 	float MotorSetpointSpeeds[2] = { 0, 0 };
 	float TachometerMeasuredSpeed[4] = { 0, 0, 0, 0 };
 	uint32_t TachometerTicks[4] = { 0, 0, 0, 0 };
+	uint32_t TachometerTicksPreviousCycle[4] = { 0, 0, 0, 0 };
 
 	static constexpr size_t CommandMailboxSize = 16; // Match queue size?
 	static constexpr size_t MaxCommandSizeInBytes = 32;
@@ -66,6 +70,9 @@ public:
 
 
 	void UpdateMotorThrottle(uint32_t flags);
+
+
+	PIDController PID[2];
 
 private:
 	// TC&TM

@@ -141,16 +141,70 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* UartHandle)
 }
 
 
+
+// Función de control PID
+float PID_Controller(float measuredSpeed) {
+
+}
+
+
+
 void ApplicationMain(const ApplicationConfig* Config)
 {
 	// FIXME: Cuidado con esto. Las tares no deberìan arrancar hasta que no estè la configuraciòn.
 	App.Config = Config;
 
+	static const uint32_t SpeedUpdateScaler = 10;
+	uint32_t SpeedUpdateCounter = 0;
+
 	// Inicio
 	HAL_UART_Receive_IT(App.Config->UartTcTmHandle, &App.RxBuf, 1);
 	for(;;)
 	{
+		// Main loop
+		if (++SpeedUpdateCounter==SpeedUpdateScaler)
+		{
+			uint32_t CurrentTimeInMs = HAL_GetTick();
+			uint32_t Dt = CurrentTimeInMs - App.OnBoardTime;
+			App.OnBoardTime = CurrentTimeInMs;
+
+			uint32_t DeltaTachometerTicks[4] = {
+				App.TachometerTicks[0] - App.TachometerTicksPreviousCycle[0],
+				App.TachometerTicks[1] - App.TachometerTicksPreviousCycle[1],
+				App.TachometerTicks[2] - App.TachometerTicksPreviousCycle[2],
+				App.TachometerTicks[3] - App.TachometerTicksPreviousCycle[3]
+			};
+			App.TachometerTicksPreviousCycle[0]=App.TachometerTicks[0];
+			App.TachometerTicksPreviousCycle[1]=App.TachometerTicks[1];
+			App.TachometerTicksPreviousCycle[2]=App.TachometerTicks[2];
+			App.TachometerTicksPreviousCycle[3]=App.TachometerTicks[3];
+
+			constexpr const uint32_t TicksPerRevolution = 20;
+			App.TachometerMeasuredSpeed[0] = DeltaTachometerTicks[0];
+			App.TachometerMeasuredSpeed[1] = DeltaTachometerTicks[1];
+			App.TachometerMeasuredSpeed[2] = DeltaTachometerTicks[2];
+			App.TachometerMeasuredSpeed[3] = DeltaTachometerTicks[3];
+			SpeedUpdateCounter = 0;
+		}
+
+		// PID mode
+		if (App.MotorSetpointSpeeds[0] > 0.0)
+		{
+			float AverageMeasuredSpeed = (App.TachometerMeasuredSpeed[0]+App.TachometerMeasuredSpeed[1])/2;
+			App.MotorThrottles[0] = App.PID[0].Process(App.MotorSetpointSpeeds[0], AverageMeasuredSpeed);
+			App.UpdateMotorThrottle(1);
+		}
+
+		if (App.MotorSetpointSpeeds[1] > 0.0)
+		{
+			float AverageMeasuredSpeed = (App.TachometerMeasuredSpeed[2]+App.TachometerMeasuredSpeed[3])/2;
+			App.MotorThrottles[1] = App.PID[1].Process(App.MotorSetpointSpeeds[1], AverageMeasuredSpeed);
+			App.UpdateMotorThrottle(2);
+		}
+
+
+
 		//HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-		osDelay(1000);
+		osDelay(1000/100);
 	}
 }

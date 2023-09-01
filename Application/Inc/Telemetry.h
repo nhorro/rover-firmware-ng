@@ -12,6 +12,7 @@ struct ApplicationGeneralTelemetry
 {
 	uint8_t FrameType = APPLICATION_FRAME_ID_GENERAL_TELEMETRY;
 	uint32_t TelemetryCycle = 0;
+	uint32_t OnBoardTime = 0;
 	uint32_t ReceivedPackets = 0;
 	uint32_t LedControlState = 0;
 	uint32_t LastCommandOpcode = 0;

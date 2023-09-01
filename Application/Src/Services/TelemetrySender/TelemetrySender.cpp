@@ -39,6 +39,7 @@ void TelemetrySenderService::SendGeneralTelemetryReport()
 
 	// Make report
 	App.GeneralTelemetry.TelemetryCycle = __builtin_bswap32(App.TelemetryCycle);
+	App.GeneralTelemetry.OnBoardTime = __builtin_bswap32(App.OnBoardTime);
 	App.GeneralTelemetry.ReceivedPackets = __builtin_bswap32(App.ReceivedPackets);
 	App.GeneralTelemetry.LedControlState = __builtin_bswap32(App.LedControlState);
 	App.GeneralTelemetry.LastCommandOpcode = __builtin_bswap32(App.LastCommandOpcode);
