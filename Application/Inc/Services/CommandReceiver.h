@@ -22,6 +22,8 @@ private:
 	bool CmdControlMotorManual(const uint8_t* payload);
 	bool CmdControlMotorAuto(const uint8_t* payload);
 	bool CmdControlMotorMode(const uint8_t* payload);
+	bool CmdSetPIDParameters(const uint8_t* payload);
+	// Add commands here
 };
 
 

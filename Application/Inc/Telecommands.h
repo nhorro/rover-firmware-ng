@@ -12,6 +12,7 @@ enum ApplicationTelecommandId {
 	ControlMotorManual,
 	ControlMotorAuto,
 	SetMotorControlMode,
+	CmdSetPIDParameters,
 	NumberOfTelecommands
 };
 
@@ -92,5 +93,26 @@ struct SetMotorControlModeCommand
 	}
 };
 #pragma pack(0)
+
+
+#pragma pack(1)
+struct SetPIDParametersCommand
+{
+	float Kp;
+	float Ki;
+	float Kd;
+	//float MainControlLoopFrequency;
+
+	void FromBytes(const uint8_t* payload)
+	{
+		Kp = SwapFloat(&payload[0]);
+		Ki = SwapFloat(&payload[4]);
+		Kd = SwapFloat(&payload[8]);
+		//MainControlLoopFrequency = SwapFloat(&payload[12]);
+	}
+};
+#pragma pack(0)
+
+
 
 #endif

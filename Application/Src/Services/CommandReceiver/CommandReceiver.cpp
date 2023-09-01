@@ -12,7 +12,8 @@ CommandReceiverService::CommandReceiverService()
 			&CommandReceiverService::CmdControlLeds,
 			&CommandReceiverService::CmdControlMotorManual,
 			&CommandReceiverService::CmdControlMotorAuto,
-			&CommandReceiverService::CmdControlMotorMode
+			&CommandReceiverService::CmdControlMotorMode,
+			&CommandReceiverService::CmdSetPIDParameters,
 		}
 {
 
@@ -102,27 +103,37 @@ bool CommandReceiverService::CmdControlMotorManual(const uint8_t* payload)
 	ControlMotorManualCommand cmd;
 	cmd.FromBytes(payload);
 
-	if ( cmd.MotorControlFlags & 1 )
+	if (App.MotorControlModeFlags & Application::ControlModeFlags::ArmedManual)
 	{
-		App.MotorThrottles[0] = cmd.MotorAThrottle;
-		if(App.MotorThrottles[0]< -1.0)
-			App.MotorThrottles[0] = -1.0;
-		else if(App.MotorThrottles[0] > 1.0)
-			App.MotorThrottles[0] = 1.0;
+		if ( cmd.MotorControlFlags & 1 )
+		{
+			App.MotorThrottles[0] = cmd.MotorAThrottle;
+			if(App.MotorThrottles[0]< -1.0)
+				App.MotorThrottles[0] = -1.0;
+			else if(App.MotorThrottles[0] > 1.0)
+				App.MotorThrottles[0] = 1.0;
+		}
+
+		if ( cmd.MotorControlFlags & 2 )
+		{
+			App.MotorThrottles[1] = cmd.MotorBThrottle;
+			if(App.MotorThrottles[1]< -1.0)
+				App.MotorThrottles[1] = -1.0;
+			else if(App.MotorThrottles[1] > 1.0)
+				App.MotorThrottles[1] = 1.0;
+		}
+
+
+		App.UpdateMotorThrottle(cmd.MotorControlFlags);
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 
-	if ( cmd.MotorControlFlags & 2 )
-	{
-		App.MotorThrottles[1] = cmd.MotorBThrottle;
-		if(App.MotorThrottles[1]< -1.0)
-			App.MotorThrottles[1] = -1.0;
-		else if(App.MotorThrottles[1] > 1.0)
-			App.MotorThrottles[1] = 1.0;
-	}
 
-	App.UpdateMotorThrottle(cmd.MotorControlFlags);
 
-	return true;
 }
 
 bool CommandReceiverService::CmdControlMotorAuto(const uint8_t* payload)
@@ -130,17 +141,24 @@ bool CommandReceiverService::CmdControlMotorAuto(const uint8_t* payload)
 	ControlMotorAutoCommand cmd;
 	cmd.FromBytes(payload);
 
-	if (cmd.MotorControlFlags & 1)
+	if (App.MotorControlModeFlags & Application::ControlModeFlags::ArmedManual)
 	{
-		App.MotorSetpointSpeeds[0] = cmd.MotorASpeed;
-	}
+		if (cmd.MotorControlFlags & 1)
+		{
+			App.MotorSetpointSpeeds[0] = cmd.MotorASpeed;
+		}
 
-	if (cmd.MotorControlFlags & 2)
+		if (cmd.MotorControlFlags & 2)
+		{
+			App.MotorSetpointSpeeds[1] = cmd.MotorBSpeed;
+		}
+
+		return true;
+	}
+	else
 	{
-		App.MotorSetpointSpeeds[1] = cmd.MotorBSpeed;
+		return false;
 	}
-
-	return true;
 }
 
 bool CommandReceiverService::CmdControlMotorMode(const uint8_t* payload)
@@ -148,9 +166,45 @@ bool CommandReceiverService::CmdControlMotorMode(const uint8_t* payload)
 	SetMotorControlModeCommand cmd;
 	cmd.FromBytes(payload);
 
+	switch(cmd.MotorControlModeFlags)
+	{
+		case Application::ControlModeFlags::ArmedManual: {
+
+		} break;
+
+		case Application::ControlModeFlags::ArmedPID: {
+
+		} break;
+
+		case Application::ControlModeFlags::Disarmed: {
+
+		} break;
+	}
+
+	App.MotorThrottles[0] = 0.;
+	App.MotorThrottles[1] = 0.;
+	App.MotorSetpointSpeeds[0] = 0.;
+	App.MotorSetpointSpeeds[1] = 0.;
+
 	App.MotorControlModeFlags = cmd.MotorControlModeFlags;
 
 	return true;
 }
 
+bool CommandReceiverService::CmdSetPIDParameters(const uint8_t* payload)
+{
+	SetPIDParametersCommand cmd;
+	cmd.FromBytes(payload);
+
+	App.PID[0].reset();
+	App.PID[0].Kp = cmd.Kp;
+	App.PID[0].Ki = cmd.Ki;
+	App.PID[0].Kd = cmd.Kd;
+	App.PID[1].reset();
+	App.PID[1].Kp = cmd.Kp;
+	App.PID[1].Ki = cmd.Ki;
+	App.PID[1].Kd = cmd.Kd;
+
+	return true;
+}
 

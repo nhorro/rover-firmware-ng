@@ -48,6 +48,8 @@ Note: with vehicle facing forward: LF=Left/Front, RB=Right/Back,etc.
 
 ### Tachometers
 
+**Update! pin assignment/color changed!**
+
 | Nucleo pin    | LM393 pin            | Wire color |
 | ------------- | -------------------- | ---------- |
 | GND           | GND                  |            |

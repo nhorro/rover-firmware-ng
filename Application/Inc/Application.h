@@ -54,9 +54,14 @@ public:
 	uint32_t LastPacketStatus = 0;
 
 	// Motors
-	uint32_t MotorControlModeFlags = 0;
+	enum ControlModeFlags {
+			Disarmed=0,
+			ArmedManual=1,
+			ArmedPID=2
+	};
+	uint32_t MotorControlModeFlags = ControlModeFlags::Disarmed;
 	float MotorThrottles[2] = { 0, 0 };
-	float MotorSetpointSpeeds[2] = { 0, 0 };
+	float MotorSetpointSpeeds[2] = { 0., 0. };
 	float TachometerMeasuredSpeed[4] = { 0, 0, 0, 0 };
 	uint32_t TachometerTicks[4] = { 0, 0, 0, 0 };
 	uint32_t TachometerTicksPreviousCycle[4] = { 0, 0, 0, 0 };
