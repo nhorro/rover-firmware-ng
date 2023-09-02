@@ -84,12 +84,12 @@ void Error_Handler(void);
 #define RMII_RXD1_GPIO_Port GPIOC
 #define LD1_Pin GPIO_PIN_0
 #define LD1_GPIO_Port GPIOB
-#define L298N_IN1_Pin GPIO_PIN_10
-#define L298N_IN1_GPIO_Port GPIOE
+#define L298N_IN3_Pin GPIO_PIN_10
+#define L298N_IN3_GPIO_Port GPIOE
 #define L298N_IN2_Pin GPIO_PIN_12
 #define L298N_IN2_GPIO_Port GPIOE
-#define L298N_IN3_Pin GPIO_PIN_14
-#define L298N_IN3_GPIO_Port GPIOE
+#define L298N_IN1_Pin GPIO_PIN_14
+#define L298N_IN1_GPIO_Port GPIOE
 #define L298N_IN4_Pin GPIO_PIN_15
 #define L298N_IN4_GPIO_Port GPIOE
 #define L298N_ENB_Pin GPIO_PIN_10

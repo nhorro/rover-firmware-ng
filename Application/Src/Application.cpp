@@ -3,6 +3,7 @@
 #include "cmsis_os.h"
 
 #include <cstring>
+#include <cmath>
 
 Application App;
 
@@ -78,45 +79,109 @@ void Application::UpdateMotorThrottle(uint32_t flags)
 {
 	static constexpr const uint32_t MaxThrottlePulseWidth = 1000.0;
 
+//	GPIO_PinState in1 = (App.MotorControlModeFlags >> 31) & 1 ? GPIO_PIN_SET : GPIO_PIN_RESET;
+//	GPIO_PinState in2 = (App.MotorControlModeFlags >> 30) & 1 ? GPIO_PIN_SET : GPIO_PIN_RESET;
+//	GPIO_PinState in3 = (App.MotorControlModeFlags >> 29) & 1 ? GPIO_PIN_SET : GPIO_PIN_RESET;
+//	GPIO_PinState in4 = (App.MotorControlModeFlags >> 28) & 1 ? GPIO_PIN_SET : GPIO_PIN_RESET;
+//
+//	HAL_GPIO_WritePin(L298N_IN1_GPIO_Port, L298N_IN1_Pin,in1); // GPIO_PIN_RESET GPIO_PIN_SET
+//	HAL_GPIO_WritePin(L298N_IN2_GPIO_Port, L298N_IN2_Pin,in2);
+//	HAL_GPIO_WritePin(L298N_IN3_GPIO_Port, L298N_IN3_Pin,in3);
+//	HAL_GPIO_WritePin(L298N_IN4_GPIO_Port, L298N_IN4_Pin,in4);
+
 	if (flags & 1)
 	{
-		setPWM(Config->PwmTimerHandle,TIM_CHANNEL_3,MotorThrottles[0]*MaxThrottlePulseWidth);
+		if ( MotorThrottles[0] >= 0.0)
+		{
+			HAL_GPIO_WritePin(L298N_IN1_GPIO_Port, L298N_IN1_Pin,GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(L298N_IN2_GPIO_Port, L298N_IN2_Pin,GPIO_PIN_SET);
+
+			setPWM(Config->PwmTimerHandle,TIM_CHANNEL_3,MotorThrottles[0]*MaxThrottlePulseWidth);
+		}
+		else
+		{
+			HAL_GPIO_WritePin(L298N_IN1_GPIO_Port, L298N_IN1_Pin,GPIO_PIN_SET);
+			HAL_GPIO_WritePin(L298N_IN2_GPIO_Port, L298N_IN2_Pin,GPIO_PIN_RESET);
+
+			setPWM(Config->PwmTimerHandle,TIM_CHANNEL_3,-MotorThrottles[0]*MaxThrottlePulseWidth);
+		}
+
 	}
 
 	if (flags & 2)
 	{
-		setPWM(Config->PwmTimerHandle,TIM_CHANNEL_4,MotorThrottles[1]*MaxThrottlePulseWidth);
+		if ( MotorThrottles[1] >= 0.0)
+		{
+			HAL_GPIO_WritePin(L298N_IN3_GPIO_Port, L298N_IN3_Pin,GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(L298N_IN4_GPIO_Port, L298N_IN4_Pin,GPIO_PIN_SET);
+		}
+		else
+		{
+			HAL_GPIO_WritePin(L298N_IN3_GPIO_Port, L298N_IN3_Pin,GPIO_PIN_SET);
+			HAL_GPIO_WritePin(L298N_IN4_GPIO_Port, L298N_IN4_Pin,GPIO_PIN_RESET);
+		}
+
+		setPWM(Config->PwmTimerHandle,TIM_CHANNEL_4,fabs(MotorThrottles[1])*MaxThrottlePulseWidth);
 	}
 }
 
 
 
-
+static constexpr uint32_t MaximumTachometerDeltaInMs = 250;
 
 void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin)
 {
+	static constexpr const uint32_t TicksPerRevolution = 20;
+	static constexpr const float DeltaTimePerRPM = 60.0*1000.0 / TicksPerRevolution;
+
+
 	switch(GPIO_Pin)
 	{
 		case TACHO1_Pin: {
 			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+			uint32_t CurrentTimeInMs = HAL_GetTick();
+			uint32_t TachometerDeltaTimeSinceLastTickInMs = CurrentTimeInMs - App.TachometerLastUpdateInMs[0];
+			App.TachometerLastUpdateInMs[0] = CurrentTimeInMs;
+			if (TachometerDeltaTimeSinceLastTickInMs < MaximumTachometerDeltaInMs )
+			{
+				App.TachometerMeasuredSpeed[0] = DeltaTimePerRPM / TachometerDeltaTimeSinceLastTickInMs;
+			}
 			App.TachometerTicks[0]++;
-			//app.increment_wheel_ticks(0);
 		} break;
 
 		case TACHO2_Pin: {
 			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+			uint32_t CurrentTimeInMs = HAL_GetTick();
+			uint32_t TachometerDeltaTimeSinceLastTickInMs = CurrentTimeInMs - App.TachometerLastUpdateInMs[1];
+			App.TachometerLastUpdateInMs[1] = CurrentTimeInMs;
+			if (TachometerDeltaTimeSinceLastTickInMs < MaximumTachometerDeltaInMs )
+			{
+				App.TachometerMeasuredSpeed[1] = DeltaTimePerRPM / TachometerDeltaTimeSinceLastTickInMs;
+			}
 			App.TachometerTicks[1]++;
-			//app.increment_wheel_ticks(1);
 		} break;
 
 		case TACHO3_Pin: {
 			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+			uint32_t CurrentTimeInMs = HAL_GetTick();
+			uint32_t TachometerDeltaTimeSinceLastTickInMs = CurrentTimeInMs - App.TachometerLastUpdateInMs[2];
+			App.TachometerLastUpdateInMs[2] = CurrentTimeInMs;
+			if (TachometerDeltaTimeSinceLastTickInMs < MaximumTachometerDeltaInMs )
+			{
+				App.TachometerMeasuredSpeed[2] = DeltaTimePerRPM / TachometerDeltaTimeSinceLastTickInMs;
+			}
 			App.TachometerTicks[2]++;
-			//app.increment_wheel_ticks(2);
 		} break;
 
 		case TACHO4_Pin: {
 			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+			uint32_t CurrentTimeInMs = HAL_GetTick();
+			uint32_t TachometerDeltaTimeSinceLastTickInMs = CurrentTimeInMs - App.TachometerLastUpdateInMs[3];
+			App.TachometerLastUpdateInMs[3] = CurrentTimeInMs;
+			if (TachometerDeltaTimeSinceLastTickInMs < MaximumTachometerDeltaInMs )
+			{
+				App.TachometerMeasuredSpeed[3] = DeltaTimePerRPM / TachometerDeltaTimeSinceLastTickInMs;
+			}
 			App.TachometerTicks[3]++;
 			//app.increment_wheel_ticks(3);
 		} break;
@@ -141,14 +206,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* UartHandle)
 }
 
 
-
-// Función de control PID
-float PID_Controller(float measuredSpeed) {
-
-}
-
-
-
 void ApplicationMain(const ApplicationConfig* Config)
 {
 	// FIXME: Cuidado con esto. Las tares no deberìan arrancar hasta que no estè la configuraciòn.
@@ -156,31 +213,24 @@ void ApplicationMain(const ApplicationConfig* Config)
 
 	// Inicio
 	HAL_UART_Receive_IT(App.Config->UartTcTmHandle, &App.RxBuf, 1);
+
+	// Shut down motors.
 	App.UpdateMotorThrottle(3);
 	for(;;)
 	{
 		// Main loop
+		App.OnBoardTime = HAL_GetTick();
 
-		uint32_t CurrentTimeInMs = HAL_GetTick();
-		uint32_t Dt = CurrentTimeInMs - App.OnBoardTime;
-		App.OnBoardTime = CurrentTimeInMs;
 
-		uint32_t DeltaTachometerTicks[4] = {
-			App.TachometerTicks[0] - App.TachometerTicksPreviousCycle[0],
-			App.TachometerTicks[1] - App.TachometerTicksPreviousCycle[1],
-			App.TachometerTicks[2] - App.TachometerTicksPreviousCycle[2],
-			App.TachometerTicks[3] - App.TachometerTicksPreviousCycle[3]
-		};
-		App.TachometerTicksPreviousCycle[0]=App.TachometerTicks[0];
-		App.TachometerTicksPreviousCycle[1]=App.TachometerTicks[1];
-		App.TachometerTicksPreviousCycle[2]=App.TachometerTicks[2];
-		App.TachometerTicksPreviousCycle[3]=App.TachometerTicks[3];
+		// Detect if tachometers stopped moving.
+		for(size_t i =0;i<4; i++)
+		{
+			if ( (App.OnBoardTime-App.TachometerLastUpdateInMs[i]) >= MaximumTachometerDeltaInMs )
+			{
+				App.TachometerMeasuredSpeed[i] = 0;
+			}
+		}
 
-		constexpr const uint32_t TicksPerRevolution = 20;
-		App.TachometerMeasuredSpeed[0] = DeltaTachometerTicks[0];
-		App.TachometerMeasuredSpeed[1] = DeltaTachometerTicks[1];
-		App.TachometerMeasuredSpeed[2] = DeltaTachometerTicks[2];
-		App.TachometerMeasuredSpeed[3] = DeltaTachometerTicks[3];
 
 		// PID mode
 		if (App.MotorControlModeFlags & Application::ControlModeFlags::ArmedPID)
@@ -193,7 +243,6 @@ void ApplicationMain(const ApplicationConfig* Config)
 			App.MotorThrottles[1] = App.PID[1].Process(App.MotorSetpointSpeeds[1], AverageMeasuredSpeed);
 
 			App.UpdateMotorThrottle(3);
-
 		}
 
 

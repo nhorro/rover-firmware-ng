@@ -95,8 +95,8 @@ class Decoder:
     def _handle_pkt_state_idle(self):        
         if PACKET_SYNC_0_CHAR == self.last_received_char:
             self.current_state = Decoder.pkt_state_expecting_start_sync1
-        else:
-            print("Spurius character: ", self.last_received_char)
+        #else:
+        #    print("Spurius character: ", self.last_received_char)
          
     def _handle_pkt_state_expecting_start_sync1(self):        
         if PACKET_SYNC_1_CHAR == self.last_received_char:

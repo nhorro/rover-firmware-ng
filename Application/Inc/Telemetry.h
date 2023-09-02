@@ -14,11 +14,9 @@ struct ApplicationGeneralTelemetry
 	uint32_t TelemetryCycle = 0;
 	uint32_t OnBoardTime = 0;
 	uint32_t ReceivedPackets = 0;
-	uint32_t LedControlState = 0;
-	uint32_t LastCommandOpcode = 0;
-	uint32_t LastCommandResult = 0;
-	uint32_t LasOsResult1 = 0;
-	uint32_t LasOsResult2 = 0;
+	uint32_t GeneralStatus = 0;
+	uint32_t Debug1 = 0;
+	uint32_t Debug2 = 0;
 
 };
 #pragma pack(0)
@@ -28,6 +26,10 @@ struct ApplicationGeneralTelemetry
 #pragma pack(1)
 struct ApplicationMotorControlTelemetry{
 	uint8_t FrameType = APPLICATION_FRAME_ID_MOTOR_CONTROL_TELEMETRY;
+
+	uint32_t TelemetryCycle = 0;
+	uint32_t OnBoardTime = 0;
+
 	uint32_t Throttle1;
 	uint32_t Throttle2;
 

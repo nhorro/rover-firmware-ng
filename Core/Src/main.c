@@ -139,10 +139,6 @@ int main(void)
   MX_USB_OTG_FS_PCD_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  HAL_GPIO_WritePin(L298N_IN1_GPIO_Port, L298N_IN1_Pin,GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(L298N_IN2_GPIO_Port, L298N_IN2_Pin,GPIO_PIN_SET);
-  HAL_GPIO_WritePin(L298N_IN3_GPIO_Port, L298N_IN3_Pin,GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(L298N_IN4_GPIO_Port, L298N_IN4_Pin,GPIO_PIN_SET);
 
   HAL_TIM_Base_Start(&htim2);
   HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
@@ -408,7 +404,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOB, LD1_Pin|LD3_Pin|LD2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOE, L298N_IN1_Pin|L298N_IN2_Pin|L298N_IN3_Pin|L298N_IN4_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOE, L298N_IN3_Pin|L298N_IN2_Pin|L298N_IN1_Pin|L298N_IN4_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(USB_PowerSwitchOn_GPIO_Port, USB_PowerSwitchOn_Pin, GPIO_PIN_RESET);
@@ -448,8 +444,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : L298N_IN1_Pin L298N_IN2_Pin L298N_IN3_Pin L298N_IN4_Pin */
-  GPIO_InitStruct.Pin = L298N_IN1_Pin|L298N_IN2_Pin|L298N_IN3_Pin|L298N_IN4_Pin;
+  /*Configure GPIO pins : L298N_IN3_Pin L298N_IN2_Pin L298N_IN1_Pin L298N_IN4_Pin */
+  GPIO_InitStruct.Pin = L298N_IN3_Pin|L298N_IN2_Pin|L298N_IN1_Pin|L298N_IN4_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

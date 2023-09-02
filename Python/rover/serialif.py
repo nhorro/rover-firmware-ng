@@ -2,6 +2,9 @@ import serial
 import threading
 
 class SerialIF:
+    """ Serial interface wrapped into a separate thread.
+    """
+
     def __init__(self, port, baudrate, callback):
         self.port = port        
         self.baudrate = baudrate

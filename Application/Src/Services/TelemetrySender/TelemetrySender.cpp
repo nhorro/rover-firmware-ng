@@ -26,9 +26,11 @@ void TelemetrySenderService::Main(void *argument)
 	for(;;)
 	{
 		SendGeneralTelemetryReport();
-		osDelay(500);
+		osDelay(200);
 		SendMotorReport();
-		osDelay(500);
+		osDelay(200);
+		SendMotorReport();
+		osDelay(200);
 		//HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
 	}
 }
@@ -41,11 +43,16 @@ void TelemetrySenderService::SendGeneralTelemetryReport()
 	App.GeneralTelemetry.TelemetryCycle = __builtin_bswap32(App.TelemetryCycle);
 	App.GeneralTelemetry.OnBoardTime = __builtin_bswap32(App.OnBoardTime);
 	App.GeneralTelemetry.ReceivedPackets = __builtin_bswap32(App.ReceivedPackets);
-	App.GeneralTelemetry.LedControlState = __builtin_bswap32(App.LedControlState);
-	App.GeneralTelemetry.LastCommandOpcode = __builtin_bswap32(App.LastCommandOpcode);
-	App.GeneralTelemetry.LastCommandResult = __builtin_bswap32(App.LastCommandResult);
-	App.GeneralTelemetry.LasOsResult1 = __builtin_bswap32(App.LasOsResult1);
-	App.GeneralTelemetry.LasOsResult2 = __builtin_bswap32(App.LasOsResult2);
+
+	uint32_t tmp = (App.MotorControlModeFlags << 0) |
+			       (App.LedControlState << 2) |
+				   (App.LastCommandOpcode << 16)  |
+				   (App.LastCommandResult << 24);
+
+	App.GeneralTelemetry.GeneralStatus = __builtin_bswap32(tmp);
+
+	App.GeneralTelemetry.Debug1 = __builtin_bswap32(App.LasOsResult1);
+	App.GeneralTelemetry.Debug2 = __builtin_bswap32(App.LasOsResult2);
 
 	EncodeAndSend(reinterpret_cast<const void*>(&App.GeneralTelemetry), sizeof(ApplicationGeneralTelemetry));
 }
@@ -54,6 +61,9 @@ void TelemetrySenderService::SendGeneralTelemetryReport()
 
 void TelemetrySenderService::SendMotorReport()
 {
+	App.MotorControlTelemetry.TelemetryCycle = __builtin_bswap32(App.TelemetryCycle);
+	App.MotorControlTelemetry.OnBoardTime = __builtin_bswap32(App.OnBoardTime);
+
 	App.MotorControlTelemetry.Throttle1 = __builtin_bswap32(reinterpret_cast<uint32_t&>(App.MotorThrottles[0]));;
 	App.MotorControlTelemetry.Throttle2 = __builtin_bswap32(reinterpret_cast<uint32_t&>(App.MotorThrottles[1]));;
 

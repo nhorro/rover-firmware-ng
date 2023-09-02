@@ -141,7 +141,7 @@ bool CommandReceiverService::CmdControlMotorAuto(const uint8_t* payload)
 	ControlMotorAutoCommand cmd;
 	cmd.FromBytes(payload);
 
-	if (App.MotorControlModeFlags & Application::ControlModeFlags::ArmedManual)
+	if (App.MotorControlModeFlags & Application::ControlModeFlags::ArmedPID)
 	{
 		if (cmd.MotorControlFlags & 1)
 		{
@@ -185,8 +185,8 @@ bool CommandReceiverService::CmdControlMotorMode(const uint8_t* payload)
 	App.MotorThrottles[1] = 0.;
 	App.MotorSetpointSpeeds[0] = 0.;
 	App.MotorSetpointSpeeds[1] = 0.;
-
 	App.MotorControlModeFlags = cmd.MotorControlModeFlags;
+	App.UpdateMotorThrottle(3);
 
 	return true;
 }

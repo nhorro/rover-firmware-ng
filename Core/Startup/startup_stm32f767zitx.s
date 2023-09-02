@@ -65,6 +65,7 @@ Reset_Handler:
   ldr r1, =_edata
   ldr r2, =_sidata
   movs r3, #0
+
   b LoopCopyDataInit
 
 CopyDataInit:
