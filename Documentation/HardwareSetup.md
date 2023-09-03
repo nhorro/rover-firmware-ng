@@ -28,6 +28,8 @@ Note: with vehicle facing forward: LF=Left/Front, RB=Right/Back,etc.
 
 ### L298N - Nucleo
 
+**Update! pin assignment/color changed!**
+
 | L298N pin | Nucleo pin   | Wire color |
 | --------- | ------------ | ---------- |
 | ENA       | PB_11 (CN10) | Green      |
@@ -59,6 +61,32 @@ Note: with vehicle facing forward: LF=Left/Front, RB=Right/Back,etc.
 | PG_9  (CN11)  | DO (Tacho  3, LB)    | Blue       |
 | PG14  (CN10)  | DO (Tacho 4, LF)     | Green      |
 
+
+### UART (to connect to other computer)
+
+| Nucleo pin    | External computer    | Wire color |
+| ------------- | -------------------- | ---------- |
+| GND           | GND                  |            |
+| 3.3V          | UART_TX              |            |
+| PF_10 (CN9)   | UART_RX              |            |
+
+**Note**: to use this UART the firmware has to be built with `UartTcTmHandle`  set to `huart1`. If `huart3` is selected, USB UART will be used.
+
+~~~c++
+/* USER CODE END Header_DefaultTaskMain */
+void DefaultTaskMain(void *argument)
+{
+  /* USER CODE BEGIN 5 */
+    Config.UartTcTmHandle = &huart3; // Development mode
+    //Config.UartTcTmHandle = &huart1; // Production mode
+    
+    /* ... */
+    
+    ApplicationMain(&Config);
+  /* USER CODE END 5 */
+}
+~~~
+
 ### MPU9250
 
 To be completed.
@@ -66,3 +94,8 @@ To be completed.
 ### GPS
 
 To be completed.
+
+## Power supply
+
+- To use external 5V power supply from L298N, set jumper J3 to U5-VIN and connect to Vin.
+- To use USB 5V power set J3 jumper to U5V (middle position).

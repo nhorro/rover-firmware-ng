@@ -11,6 +11,7 @@
 #include "Telemetry.h"
 
 #include "Controllers/PidController.h"
+#include "Filters/MovingAverageFilter.hpp"
 
 extern "C" {
 	void ApplicationMain(const ApplicationConfig* Config);
@@ -76,9 +77,17 @@ public:
 
 
 	void UpdateMotorThrottle(uint32_t flags);
+	void UpdateTachometer(uint32_t TachometerIdx);
 
+	static constexpr const uint32_t TicksPerRevolution = 20;
+	static constexpr const float DeltaTimePerRPM = 60.0*1000.0 / TicksPerRevolution;
+	static constexpr uint32_t MaximumTachometerDeltaInMs = 250;
 
+	static constexpr const uint32_t MovingAverageFilterSamples = 10;
+	MovingAverageFilter<32> TachometerFilters[4];
 	PIDController PID[2];
+
+	inline void DetectInactiveTachometers();
 
 private:
 	// TC&TM

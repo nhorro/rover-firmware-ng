@@ -126,64 +126,61 @@ void Application::UpdateMotorThrottle(uint32_t flags)
 }
 
 
+void Application::UpdateTachometer(uint32_t TachometerIdx)
+{
+	uint32_t CurrentTimeInMs = HAL_GetTick();
+	uint32_t TachometerDeltaTimeSinceLastTickInMs = CurrentTimeInMs - App.TachometerLastUpdateInMs[TachometerIdx];
+	App.TachometerLastUpdateInMs[TachometerIdx] = CurrentTimeInMs;
+	if (TachometerDeltaTimeSinceLastTickInMs < MaximumTachometerDeltaInMs )
+	{
+		// Prevent division by zero
+		if ( (TachometerDeltaTimeSinceLastTickInMs > 0.0001) || (TachometerDeltaTimeSinceLastTickInMs < 0.0001))
+		{
+			App.TachometerMeasuredSpeed[TachometerIdx] = TachometerFilters[TachometerIdx].process(DeltaTimePerRPM / TachometerDeltaTimeSinceLastTickInMs);
+		}
 
-static constexpr uint32_t MaximumTachometerDeltaInMs = 250;
+	}
+	App.TachometerTicks[TachometerIdx]++;
+}
+
+
+
+void Application::DetectInactiveTachometers()
+{
+	for(size_t i =0;i<4; i++)
+	{
+		if ( (OnBoardTime-TachometerLastUpdateInMs[i]) >= Application::MaximumTachometerDeltaInMs )
+		{
+			TachometerMeasuredSpeed[i] = 0;
+		}
+	}
+}
+
+
+
 
 void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin)
 {
-	static constexpr const uint32_t TicksPerRevolution = 20;
-	static constexpr const float DeltaTimePerRPM = 60.0*1000.0 / TicksPerRevolution;
-
-
 	switch(GPIO_Pin)
 	{
 		case TACHO1_Pin: {
 			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-			uint32_t CurrentTimeInMs = HAL_GetTick();
-			uint32_t TachometerDeltaTimeSinceLastTickInMs = CurrentTimeInMs - App.TachometerLastUpdateInMs[0];
-			App.TachometerLastUpdateInMs[0] = CurrentTimeInMs;
-			if (TachometerDeltaTimeSinceLastTickInMs < MaximumTachometerDeltaInMs )
-			{
-				App.TachometerMeasuredSpeed[0] = DeltaTimePerRPM / TachometerDeltaTimeSinceLastTickInMs;
-			}
-			App.TachometerTicks[0]++;
+			App.UpdateTachometer(0);
 		} break;
 
 		case TACHO2_Pin: {
 			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-			uint32_t CurrentTimeInMs = HAL_GetTick();
-			uint32_t TachometerDeltaTimeSinceLastTickInMs = CurrentTimeInMs - App.TachometerLastUpdateInMs[1];
-			App.TachometerLastUpdateInMs[1] = CurrentTimeInMs;
-			if (TachometerDeltaTimeSinceLastTickInMs < MaximumTachometerDeltaInMs )
-			{
-				App.TachometerMeasuredSpeed[1] = DeltaTimePerRPM / TachometerDeltaTimeSinceLastTickInMs;
-			}
-			App.TachometerTicks[1]++;
+			App.UpdateTachometer(1);
 		} break;
 
 		case TACHO3_Pin: {
 			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-			uint32_t CurrentTimeInMs = HAL_GetTick();
-			uint32_t TachometerDeltaTimeSinceLastTickInMs = CurrentTimeInMs - App.TachometerLastUpdateInMs[2];
-			App.TachometerLastUpdateInMs[2] = CurrentTimeInMs;
-			if (TachometerDeltaTimeSinceLastTickInMs < MaximumTachometerDeltaInMs )
-			{
-				App.TachometerMeasuredSpeed[2] = DeltaTimePerRPM / TachometerDeltaTimeSinceLastTickInMs;
-			}
-			App.TachometerTicks[2]++;
+			App.UpdateTachometer(2);
 		} break;
 
 		case TACHO4_Pin: {
 			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-			uint32_t CurrentTimeInMs = HAL_GetTick();
-			uint32_t TachometerDeltaTimeSinceLastTickInMs = CurrentTimeInMs - App.TachometerLastUpdateInMs[3];
-			App.TachometerLastUpdateInMs[3] = CurrentTimeInMs;
-			if (TachometerDeltaTimeSinceLastTickInMs < MaximumTachometerDeltaInMs )
-			{
-				App.TachometerMeasuredSpeed[3] = DeltaTimePerRPM / TachometerDeltaTimeSinceLastTickInMs;
-			}
-			App.TachometerTicks[3]++;
-			//app.increment_wheel_ticks(3);
+			App.UpdateTachometer(3);
 		} break;
 
 		default: {
@@ -223,14 +220,7 @@ void ApplicationMain(const ApplicationConfig* Config)
 
 
 		// Detect if tachometers stopped moving.
-		for(size_t i =0;i<4; i++)
-		{
-			if ( (App.OnBoardTime-App.TachometerLastUpdateInMs[i]) >= MaximumTachometerDeltaInMs )
-			{
-				App.TachometerMeasuredSpeed[i] = 0;
-			}
-		}
-
+		App.DetectInactiveTachometers();
 
 		// PID mode
 		if (App.MotorControlModeFlags & Application::ControlModeFlags::ArmedPID)
