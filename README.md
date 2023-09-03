@@ -1,16 +1,20 @@
 Rover firmware for STM32 (Next Generation)
 ==========================================
 
-This repository contains the STM32CubeIde proect with the firmware to control a 4WD rover. The software and pinout has been customized to the [STM32 F767ZITX microcontroller](https://www.st.com/en/microcontrollers-microprocessors/stm32f767zi.html), but it can be easily ported to other STM32 targets that support CUBEMx HAL.
+This repository contains the [STM32CubeIde](https://www.st.com/en/development-tools/stm32cubeide.html)  project with the firmware to control a 4WD rover. The software and pinout has been customized to the [STM32 F767ZITX microcontroller](https://www.st.com/en/microcontrollers-microprocessors/stm32f767zi.html), but using STM32CubeMx it can be easily ported to other STM32 targets that support CUBEMx HAL.
 
 **History - Why 'Next Generation'?**
 
 This version is an improvement over previous implementations:
 
-- v1. An initial implementation with [Arduino Due / Raspberry Pi](https://github.com/nhorro/rover-firmware). This included the ROS software running in a Raspberry PI and a x86 for GroundControl.
-- v2. A migration to [Nucleo-f767zi with MBedOs](https://github.com/nhorro/ceai2020/tree/master/intro_se/workspace/rover_firmware) with a lightweight [GroundControl](https://github.com/nhorro/ceai2020/tree/master/intro_se/workspace/rover_groundcontrol).
+- v1. An initial implementation with [Arduino Due / Raspberry Pi](https://github.com/nhorro/rover-firmware). This included the ROS software running in a Raspberry PI and a x86 for GroundControl:
+   - [roverbridge](https://github.com/nhorro/roverbridge)
+   - [roverstation](https://github.com/nhorro/roverstation)
+   - [rovervision](https://github.com/nhorro/rovervision)
+- v2. A migration to [Nucleo-f767zi with MBedOs](https://github.com/nhorro/ceai2020/tree/master/intro_se/workspace/rover_firmware) with a lightweight [Python client](https://github.com/nhorro/ceai2020/tree/master/intro_se/workspace/rover_groundcontrol).
 - v3. This version:
    -  Better task/code modularization with FreeRTOS.
+   -  Portability across STM32 boards.
    -  Benefit from STM32CubeHal to choose the best peripheral configuration (hardware PWM and tick count, etc.).
 
 Instructions
