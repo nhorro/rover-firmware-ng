@@ -5,6 +5,7 @@
 
 #define APPLICATION_FRAME_ID_GENERAL_TELEMETRY 0
 #define APPLICATION_FRAME_ID_MOTOR_CONTROL_TELEMETRY 1
+#define APPLICATION_FRAME_ID_IMU_TELEMETRY 2
 
 
 #pragma pack(1)
@@ -47,5 +48,20 @@ struct ApplicationMotorControlTelemetry{
 	uint32_t SetpointSpeed2;
 
 	uint32_t StatusFlags;
+} ;
+#pragma pack(0)
+
+
+
+#pragma pack(1)
+struct ApplicationIMUTelemetry{
+	uint8_t FrameType = APPLICATION_FRAME_ID_IMU_TELEMETRY;
+
+	uint32_t TelemetryCycle = 0;
+	uint32_t OnBoardTime = 0;
+
+	float Roll;
+	float Pitch;
+	float Yaw;
 } ;
 #pragma pack(0)

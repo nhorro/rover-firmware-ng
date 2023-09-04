@@ -49,15 +49,18 @@ class VehicleIF(SerialIF):
         
         self.telemetry_report_handlers = {
            0: self._handle_general_telemetry,
-           1: self._handle_motor_control_telemetry
+           1: self._handle_motor_control_telemetry,
+           2: self._handle_imu_telemetry
         }
         
         self.last_general_telemetry = None
         self.last_motor_control_telemetry = None
+        self.last_imu_telemetry = None
         
         self.telemetry_loggers = {
             tmy.GeneralTelemetry: TelemetryCSVLogger(csv_header_from_packet(tmy.GeneralTelemetry)),
-            tmy.MotorControlTelemetry: TelemetryCSVLogger(csv_header_from_packet(tmy.MotorControlTelemetry))
+            tmy.MotorControlTelemetry: TelemetryCSVLogger(csv_header_from_packet(tmy.MotorControlTelemetry)),
+            tmy.IMUTelemetry: TelemetryCSVLogger(csv_header_from_packet(tmy.IMUTelemetry))
         }
 
         self.telemetry_formatters = {
@@ -97,6 +100,16 @@ class VehicleIF(SerialIF):
                 print("   {}: {}".format(name,formatted_value))
         else:
             print("No motor control telemetry frames have been received yet.")
+        print("IMU Telemetry")
+        if self.last_imu_telemetry:
+            for name,value in self.last_imu_telemetry.items():
+                if name in self.telemetry_formatters:
+                    formatted_value = self.telemetry_formatters[name](value)
+                else:
+                    formatted_value = value
+                print("   {}: {}".format(name,formatted_value))
+        else:
+            print("No IMU telemetry frames have been received yet.")            
 
     def _handle_error(self, ec):
         self.connection_errors+=1
@@ -181,5 +194,11 @@ class VehicleIF(SerialIF):
         tm = tmy.MotorControlTelemetry()
         tm.from_bytes(payload)
         self.last_motor_control_telemetry = tm.get_field_values() 
+        return tm
+
+    def _handle_imu_telemetry(self, payload):
+        tm = tmy.IMUTelemetry()
+        tm.from_bytes(payload)
+        self.last_imu_telemetry = tm.get_field_values() 
         return tm
         

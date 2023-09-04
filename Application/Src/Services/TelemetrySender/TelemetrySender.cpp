@@ -29,7 +29,10 @@ void TelemetrySenderService::Main(void *argument)
 		osDelay(200);
 		SendMotorReport();
 		osDelay(200);
-		SendMotorReport();
+		if(App.IMUStateOk)
+		{
+			SendIMUReport();
+		}
 		osDelay(200);
 		//HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
 	}
@@ -46,6 +49,7 @@ void TelemetrySenderService::SendGeneralTelemetryReport()
 
 	uint32_t tmp = (App.MotorControlModeFlags << 0) |
 			       (App.LedControlState << 2) |
+				   (App.IMUStateOk << 3) |
 				   (App.LastCommandOpcode << 16)  |
 				   (App.LastCommandResult << 24);
 
@@ -84,6 +88,21 @@ void TelemetrySenderService::SendMotorReport()
 
 	EncodeAndSend(reinterpret_cast<const void*>(&App.MotorControlTelemetry), sizeof(ApplicationMotorControlTelemetry));
 }
+
+
+
+void TelemetrySenderService::SendIMUReport()
+{
+	App.IMUTelemetry.TelemetryCycle = __builtin_bswap32(App.TelemetryCycle);
+	App.IMUTelemetry.OnBoardTime = __builtin_bswap32(App.OnBoardTime);
+
+	App.IMUTelemetry.Pitch = __builtin_bswap32(reinterpret_cast<uint32_t&>(App.IMUAttitude.p));;
+	App.IMUTelemetry.Roll = __builtin_bswap32(reinterpret_cast<uint32_t&>(App.IMUAttitude.r));;
+	App.IMUTelemetry.Yaw = __builtin_bswap32(reinterpret_cast<uint32_t&>(App.IMUAttitude.y));;
+
+	EncodeAndSend(reinterpret_cast<const void*>(&App.IMUTelemetry), sizeof(ApplicationIMUTelemetry));
+}
+
 
 
 void TelemetrySenderService::EncodeAndSend(const void* Data, size_t SizeInBytes)

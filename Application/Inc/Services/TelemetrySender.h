@@ -20,6 +20,7 @@ private:
 
 	void SendGeneralTelemetryReport();
 	void SendMotorReport();
+	void SendIMUReport();
 
 	void EncodeAndSend(const void* Data, size_t SizeInBytes);
 };

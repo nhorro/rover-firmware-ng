@@ -208,6 +208,20 @@ void ApplicationMain(const ApplicationConfig* Config)
 	// FIXME: Cuidado con esto. Las tares no deberìan arrancar hasta que no estè la configuraciòn.
 	App.Config = Config;
 
+	//void setup(I2C_HandleTypeDef *pI2Cx, uint8_t addr);
+	// Configure IMU
+	App.imu.setup(Config->MPU9250I2CHandle,AD0_LOW);
+	App.imu.setGyroFullScaleRange(GFSR_500DPS);
+	App.imu.setAccFullScaleRange(AFSR_4G);
+	App.imu.setDeltaTime(0.004);
+	App.imu.setTau(0.98);
+
+	// Check if IMU configured properly and block if it didn't
+	App.IMUStateOk = App.imu.begin();
+
+	// Calibrate the IMU
+	App.imu.calibrateGyro(1500);
+
 	// Inicio
 	HAL_UART_Receive_IT(App.Config->UartTcTmHandle, &App.RxBuf, 1);
 
@@ -216,8 +230,13 @@ void ApplicationMain(const ApplicationConfig* Config)
 	for(;;)
 	{
 		// Main loop
-		App.OnBoardTime = HAL_GetTick();
+		uint32_t CurrentTime = HAL_GetTick();
+		uint32_t DeltaTimeSinceLastIteration = CurrentTime - App.OnBoardTime;
+		App.OnBoardTime = CurrentTime;
 
+
+		App.imu.setDeltaTime(float(DeltaTimeSinceLastIteration)/1000.0f);
+		App.IMUStateOk = App.imu.calcAttitude(App.IMUAttitude);
 
 		// Detect if tachometers stopped moving.
 		App.DetectInactiveTachometers();
@@ -236,8 +255,8 @@ void ApplicationMain(const ApplicationConfig* Config)
 		}
 
 
-		//HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-		osDelay(1000/50.0); //App.MainControlLoopFrequency
+		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+		osDelay(1000/10.0); //App.MainControlLoopFrequency
 
 	}
 }

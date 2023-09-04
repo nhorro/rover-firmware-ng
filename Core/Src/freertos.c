@@ -30,6 +30,7 @@ extern void ApplicationMain(const ApplicationConfig* Config);
 
 #include "tim.h"
 #include "usart.h"
+#include "i2c.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -156,10 +157,11 @@ void MX_FREERTOS_Init(void) {
 void DefaultTaskMain(void *argument)
 {
   /* USER CODE BEGIN DefaultTaskMain */
-	//Config.UartTcTmHandle = &huart3; // Development mode
-	Config.UartTcTmHandle = &huart1; // Production mode
+	Config.UartTcTmHandle = &huart3; // Development mode
+	//Config.UartTcTmHandle = &huart1; // Production mode
 	Config.PwmTimerHandle = &htim2;
 	Config.CommandReceiverQueueHandle = CommandReceiverQueueHandle;
+	Config.MPU9250I2CHandle = &hi2c1;
 	ApplicationMain(&Config);
   /* USER CODE END DefaultTaskMain */
 }

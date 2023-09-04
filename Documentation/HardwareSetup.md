@@ -68,7 +68,12 @@ See section below.
 
 ### MPU9250
 
-To be completed.
+| Nucleo pin           | MPU9250 pin          | Wire color |
+| -------------------- | -------------------- | ---------- |
+| 3.3V                 | VCC                  | Black      |
+| GND                  | GND                  | Grey       |
+| PB_8 I2C1_SCL (CN7)  | SCL                  | White      |
+| PB_9 I2C_SDA (CN7)   | SDA                  | Purple     |
 
 ### GPS
 

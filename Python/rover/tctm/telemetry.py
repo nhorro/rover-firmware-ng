@@ -53,3 +53,22 @@ class MotorControlTelemetry(sp.BaseMessage):
     def get_field_values(self):        
         result = {f: getattr(self, f) for f in self.fields }
         return result        
+
+
+class IMUTelemetry(sp.BaseMessage):
+    def __init__(self):      
+
+        self.TelemetryCycle = 0
+        self.OnBoardTime = 0  
+        
+        self.Roll = 0.
+        self.Pitch = 0.
+        self.Yaw = 0.
+        
+        # see: https://docs.python.org/3/library/struct.html
+        self.format = '>IIfff'
+        sp.BaseMessage.__init__(self)
+    
+    def get_field_values(self):        
+        result = {f: getattr(self, f) for f in self.fields }
+        return result            

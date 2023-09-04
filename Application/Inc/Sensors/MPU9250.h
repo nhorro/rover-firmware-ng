@@ -1,33 +1,34 @@
 /*
- * MPU9250.h
+ * MPUXX50.h
  *
- *  Created on: Apr 2, 2022
+ *  Created on: Apr 26, 2022
  *      Author: MarkSherstan
  */
 
-#ifndef SRC_MPU9250_H_
-#define SRC_MPU9250_H_
+#ifndef SRC_MPUXX50_H_
+#define SRC_MPUXX50_H_
 
 // Libraries
 #include <stdint.h>
 #include <math.h>
-#include "SPI.h"
+
+#include "main.h"
+#include "cmsis_os.h"
 
 // Constants
 #define RAD2DEG 57.2957795131
 
 // Defines
+#define WHO_AM_I_6050_ANS 0x68
 #define WHO_AM_I_9250_ANS 0x71
 #define WHO_AM_I          0x75
-#define USER_CTRL         0x6A
-#define PWR_MGMT_1        0x6B
+#define AD0_LOW           0x68
+#define AD0_HIGH          0x69
 #define GYRO_CONFIG       0x1B
 #define ACCEL_CONFIG      0x1C
+#define PWR_MGMT_1        0x6B
 #define ACCEL_XOUT_H      0x3B
-#define READWRITE         0x80
-#define CS_SELECT         0
-#define CS_DESELECT       1
-#define SPI_TIMOUT_MS     1000
+#define I2C_TIMOUT_MS     1000
 
 // Structs
 struct RawData
@@ -67,21 +68,17 @@ enum accelerometerFullScaleRange
     AFSR_16G
 };
 
-class MPU9250
+class MPUXX50
 {
 private:
     // Functions
-    void REG_READ(uint8_t addr, uint8_t *pRxData, uint16_t RxSize);
-    void REG_WRITE(uint8_t *pAddr, uint8_t *pVal);
     void writeGyroFullScaleRange(uint8_t gFSR);
     void writeAccFullScaleRange(uint8_t aFSR);
-    void toggleCS();
 
     // Variables
     float aScaleFactor, gScaleFactor;
-    SPI_HandleTypeDef *_pSPI;
-    GPIO_TypeDef *_pCSport;
-    uint16_t _CSpin;
+    I2C_HandleTypeDef *_pI2Cx;
+    uint8_t _addr;
 
     // Default values
     uint8_t _gFSR = GFSR_500DPS;
@@ -94,14 +91,14 @@ private:
     Attitude attitude;
 
 public:
-    // Init
-    MPU9250(SPI_HandleTypeDef *pSPI, GPIO_TypeDef *pCSport, uint16_t CSpin);
+    MPUXX50();
+    void setup(I2C_HandleTypeDef *pI2Cx, uint8_t addr);
 
     // Functions
     void calibrateGyro(uint16_t numCalPoints);
-    ProcessedData processData();
-    Attitude calcAttitude();
-    RawData readRawData();
+    bool processData(ProcessedData& processedData);
+    bool calcAttitude(Attitude& attitude);
+    bool readRawData(RawData& rawData);
     uint8_t begin();
 
     void setGyroFullScaleRange(uint8_t gFSR);
@@ -110,4 +107,4 @@ public:
     void setTau(float tau);
 };
 
-#endif /* SRC_MPU9250_H_ */
+#endif /* SRC_MPUXX50_H_ */

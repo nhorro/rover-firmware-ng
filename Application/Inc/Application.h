@@ -12,6 +12,7 @@
 
 #include "Controllers/PidController.h"
 #include "Filters/MovingAverageFilter.hpp"
+#include "Sensors/MPU9250.h"
 
 extern "C" {
 	void ApplicationMain(const ApplicationConfig* Config);
@@ -36,6 +37,7 @@ public:
 	// Telemetry
 	ApplicationGeneralTelemetry GeneralTelemetry;
 	ApplicationMotorControlTelemetry MotorControlTelemetry;
+	ApplicationIMUTelemetry IMUTelemetry;
 
 	inline uint32_t GetReceivedPackets() const { return ReceivedPackets; }
 	inline uint32_t GetLedControlState() const { return LedControlState; }
@@ -48,11 +50,14 @@ public:
 	uint32_t OnBoardTime = 0; // Onboard time in usecs
 	uint32_t ReceivedPackets = 0;
 	uint32_t LedControlState = 0;
+	uint32_t IMUStateOk = 0;
 	uint32_t LastCommandOpcode = 0;
 	uint32_t LastCommandResult = 0;
 	uint32_t LasOsResult1 = 0;
 	uint32_t LasOsResult2 = 0;
 	uint32_t LastPacketStatus = 0;
+
+	Attitude IMUAttitude;
 
 	// Motors
 	enum ControlModeFlags {
@@ -98,7 +103,7 @@ private:
 	void set_error(error_code ec) override;
 
 
-
+	MPUXX50 imu;
 
 
 	/**
