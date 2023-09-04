@@ -64,28 +64,7 @@ Note: with vehicle facing forward: LF=Left/Front, RB=Right/Back,etc.
 
 ### UART (to connect to other computer)
 
-| Nucleo pin    | External computer    | Wire color |
-| ------------- | -------------------- | ---------- |
-| GND           | GND                  |            |
-| 3.3V          | UART_TX              |            |
-| PF_10 (CN9)   | UART_RX              |            |
-
-**Note**: to use this UART the firmware has to be built with `UartTcTmHandle`  set to `huart1`. If `huart3` is selected, USB UART will be used.
-
-~~~c++
-/* USER CODE END Header_DefaultTaskMain */
-void DefaultTaskMain(void *argument)
-{
-  /* USER CODE BEGIN 5 */
-    Config.UartTcTmHandle = &huart3; // Development mode
-    //Config.UartTcTmHandle = &huart1; // Production mode
-    
-    /* ... */
-    
-    ApplicationMain(&Config);
-  /* USER CODE END 5 */
-}
-~~~
+See section below.
 
 ### MPU9250
 
@@ -95,7 +74,78 @@ To be completed.
 
 To be completed.
 
-## Power supply
+Power supply
+------------
 
 - To use external 5V power supply from L298N, set jumper J3 to U5-VIN and connect to Vin.
 - To use USB 5V power set J3 jumper to U5V (middle position).
+
+Connection to other computers
+-----------------------------
+
+To connect to other computers using UART1 the firmware has to be built with `UartTcTmHandle`  set to `huart1`. 
+
+~~~c++
+/* USER CODE END Header_DefaultTaskMain */
+void DefaultTaskMain(void *argument)
+{
+  /* USER CODE BEGIN 5 */
+    Config.UartTcTmHandle = &huart3; // Development mode, connected to USB/debbuger.
+    //Config.UartTcTmHandle = &huart1; // Production mode
+    
+    /* ... */
+    
+    ApplicationMain(&Config);
+  /* USER CODE END 5 */
+}
+~~~
+
+If `huart3` is selected, USB UART will be used instead.
+
+### PC using RS232 TTL USB adapter (pre-production mode)
+
+Builiding the firmware with  `UartTcTmHandle` set to `huart1` (see notes above) and testing one last time against a PC is suggested before closing the chassis.
+
+![img](./Assets/USBUARTAdapter.jpeg)
+
+
+- **Warning!**: ensure 3.3V mode is selected in the USB adapter.
+
+| Nucleo pin           | External computer    | Wire color |
+| -------------------- | -------------------- | ---------- |
+| GND                  | GND                  | Black      |
+| UART1_RX PB_15 (CN7) | UART_TX              | Red        |
+| UART1_TX PB_6 (CN10) | UART_RX              | White      |
+
+### Raspberry Pi (low/mid cost production mode 1)
+
+Raspberry Pi 3B+/4 are the chosen on board computer options for the low/mid cost configuration. As with the previous option, ensure the firmware is built with  `UartTcTmHandle` set to `huart1` (see notes above).
+
+![Raspberry Pi pinout](https://www.raspberrypi.com/documentation/computers/images/GPIO-Pinout-Diagram-2.png)
+
+| Nucleo pin           | Raspberry Pi pin     | Wire color |
+| -------------------- | -------------------- | ---------- |
+| GND                  | 6 (GND)              |            |
+| UART1_RX PB_15 (CN7) | 8 (TXD)              |            |
+| UART1_TX PB_6 (CN10) | 10 (RXD)             |            |
+
+**Note**: to use this UART the firmware has to be built with `UartTcTmHandle`  set to `huart1`. If `huart3` is selected, USB UART will be used.
+
+#### Note on UART boot with Raspberry Pi
+
+There is a caveat with the UART in Raspberry Pi. The firmware periodically publishes telemetry, which prevents the Raspberry Pi from booting. See [Raspberry Pi setup](RaspberryPiSetup.md) for details.
+
+
+### Jetson Nano (advanced AI production mode 2)
+
+WIP.
+
+| Nucleo pin           | External computer    | Wire color |
+| -------------------- | -------------------- | ---------- |
+| GND                  | GND                  |            |
+| UART1_RX PB_15 (CN7) | TBC                  |            |
+| UART1_TX PB_6 (CN10) | TBC                  |            |
+
+**Note**: to use this UART the firmware has to be built with `UartTcTmHandle`  set to `huart1`. If `huart3` is selected, USB UART will be used.
+
+
