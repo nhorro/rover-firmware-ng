@@ -1,18 +1,26 @@
 Raspberry PI Application Note - Manned teleoperated Rover
 =========================================================
 
+
+
+Software architecture overview
+------------------------------
+
+![SoftwareDeploymentView](./Assets/SoftwareDeploymentView.png)
+
+
+Software installation procedure
+-------------------------------
+
 **Overview**
 
 1. Basic software.
 2. Remote operation.
 2. Live video with GStreamer.
-3. IMU / ROS integration
 
+### Basic software
 
-Basic software
----------------
-
-### UART configuration.
+#### UART configuration.
 
 1. **Backup Configuration Files:**
 
@@ -76,7 +84,7 @@ After performing these steps, the serial console on `/dev/ttyAMA0` should be dis
 
 To re-enable the serial console for debugging or other purposes, you can reverse these steps by uncommenting the line in /etc/inittab and adding back the `console=serial0,115200` line in `/boot/cmdline.txt`.
 
-### Start WiFI hotspot
+#### WiFI hotspot configuration
 
 To configure a Raspberry Pi as a WiFi hotspot using nmcli (NetworkManager Command-Line Interface), you can follow these steps. This guide assumes you have NetworkManager installed on your Raspberry Pi and that your Raspberry Pi has wireless capability (either built-in Wi-Fi or a compatible USB Wi-Fi adapter).
 
@@ -119,18 +127,11 @@ sudo nmcli connection up MyHotspot
 
 To be completed.
 
-Remote operation
-----------------
+### Remote operation
 
 Work in progress.
 
+#### Live video
 
-Live video
-----------
+See Gsteramer scripts for video [publication](../Scripts/publish_video.sh) and [reception](../Scripts/receive_video.sh).
 
-See Gstramer scripts for video [publication](../Scripts/publish_video.sh) and [reception](../Scripts/receive_video.sh).
-
-Integration with ROS (IMU telemetry + rovervision)
---------------------------------------------------
-
-To be completed.

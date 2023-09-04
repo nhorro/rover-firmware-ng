@@ -1,30 +1,18 @@
 Hardware Setup
 ==============
 
+Block diagram
+-------------
 
-Nucleo Pinout Reference (from OS Mbed site)
--------------------------------------------
-
-### Arduino-compatible headers
-
-#### CN8 and CN9
-
-![image](https://os.mbed.com/media/uploads/jeromecoutant/nucleo_f767zi_zio_left_2020_3_30.png)
-
-#### CN7 and CN10
-
-![image](https://os.mbed.com/media/uploads/jeromecoutant/nucleo_f767zi_zio_right_2020_3_30.png)
-
-### CN11 CN12 headers
-
-![image](https://os.mbed.com/media/uploads/jeromecoutant/nucleo_f767zi_morpho_left_2020_3_30.png)
-
-![image](https://os.mbed.com/media/uploads/jeromecoutant/nucleo_f767zi_morpho_right_2020_3_30.png)
+![ControllerBoardBlockDiagram](./Assets/ControllerBoardBlockDiagram.png)
 
 Pin assignment
 --------------
 
-Note: with vehicle facing forward: LF=Left/Front, RB=Right/Back,etc.
+Notes: 
+
+- With vehicle facing forward: LF=Left/Front, RB=Right/Back,etc.
+- See pinout reference section below (links to image with diagrams are from the Nucleo official site).
 
 ### L298N - Nucleo
 
@@ -122,9 +110,9 @@ Builiding the firmware with  `UartTcTmHandle` set to `huart1` (see notes above) 
 | UART1_RX PB_15 (CN7) | UART_TX              | Red        |
 | UART1_TX PB_6 (CN10) | UART_RX              | White      |
 
-### Raspberry Pi (low/mid cost production mode 1)
+### Raspberry Pi and Jetson
 
-Raspberry Pi 3B+/4 are the chosen on board computer options for the low/mid cost configuration. As with the previous option, ensure the firmware is built with  `UartTcTmHandle` set to `huart1` (see notes above).
+Raspberry Pi 3B+/4 are the chosen on board computer options for the low/mid cost configuration. As with the previous option, ensure the firmware is built with  `UartTcTmHandle` set to `huart1` (see notes above). As Jetson Nano has the same pinout as Raspberry Pi, only part of the application software is different.
 
 ![Raspberry Pi pinout](https://www.raspberrypi.com/documentation/computers/images/GPIO-Pinout-Diagram-2.png)
 
@@ -136,21 +124,27 @@ Raspberry Pi 3B+/4 are the chosen on board computer options for the low/mid cost
 
 **Note**: to use this UART the firmware has to be built with `UartTcTmHandle`  set to `huart1`. If `huart3` is selected, USB UART will be used.
 
-#### Note on UART boot with Raspberry Pi
+#### Note on UART boot 
 
-There is a caveat with the UART in Raspberry Pi. The firmware periodically publishes telemetry, which prevents the Raspberry Pi from booting. See [Raspberry Pi setup](RaspberryPiSetup.md) for details.
+There is a caveat with the UART in Ubuntu. This has been observed in Raspberry Pi. The firmware periodically publishes telemetry, which prevents the Raspberry Pi from booting. See [Raspberry Pi setup](RaspberryPiSetup.md) for details.
 
 
-### Jetson Nano (advanced AI production mode 2)
+Nucleo pinout reference (from OS Mbed site)
+-------------------------------------------
 
-WIP.
+### Arduino-compatible headers
 
-| Nucleo pin           | External computer    | Wire color |
-| -------------------- | -------------------- | ---------- |
-| GND                  | GND                  |            |
-| UART1_RX PB_15 (CN7) | TBC                  |            |
-| UART1_TX PB_6 (CN10) | TBC                  |            |
+#### CN8 and CN9
 
-**Note**: to use this UART the firmware has to be built with `UartTcTmHandle`  set to `huart1`. If `huart3` is selected, USB UART will be used.
+![image](https://os.mbed.com/media/uploads/jeromecoutant/nucleo_f767zi_zio_left_2020_3_30.png)
 
+#### CN7 and CN10
+
+![image](https://os.mbed.com/media/uploads/jeromecoutant/nucleo_f767zi_zio_right_2020_3_30.png)
+
+### CN11 CN12 headers
+
+![image](https://os.mbed.com/media/uploads/jeromecoutant/nucleo_f767zi_morpho_left_2020_3_30.png)
+
+![image](https://os.mbed.com/media/uploads/jeromecoutant/nucleo_f767zi_morpho_right_2020_3_30.png)
 
