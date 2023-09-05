@@ -157,8 +157,8 @@ void MX_FREERTOS_Init(void) {
 void DefaultTaskMain(void *argument)
 {
   /* USER CODE BEGIN DefaultTaskMain */
-	Config.UartTcTmHandle = &huart3; // Development mode
-	//Config.UartTcTmHandle = &huart1; // Production mode
+	Config.UartTcTmHandle = &huart3; // Development mode (USB)
+	//Config.UartTcTmHandle = &huart1; // Production mode (Rx/Tx pins)
 	Config.PwmTimerHandle = &htim2;
 	Config.CommandReceiverQueueHandle = CommandReceiverQueueHandle;
 	Config.MPU9250I2CHandle = &hi2c1;

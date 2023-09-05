@@ -1,17 +1,18 @@
 import serial
 import threading
 
-class SerialIF:
-    """ Serial interface wrapped into a separate thread.
-    """
+from .endpointif import EndpointIF
 
-    def __init__(self, port, baudrate, callback):
+class SerialIF(EndpointIF):
+    def __init__(self, port, baudrate):
         self.port = port        
-        self.baudrate = baudrate
-        self.callback = callback
+        self.baudrate = baudrate        
         self.serial = None
         self.thread = None
         self.running = False
+
+    def set_callback(self, callback):
+        self.callback = callback
 
     def start_listening(self):
         self.serial = serial.Serial(self.port, self.baudrate)

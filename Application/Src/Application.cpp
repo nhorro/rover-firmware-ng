@@ -255,7 +255,7 @@ void ApplicationMain(const ApplicationConfig* Config)
 		}
 
 
-		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+		HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
 		osDelay(1000/10.0); //App.MainControlLoopFrequency
 
 	}
