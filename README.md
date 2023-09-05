@@ -3,6 +3,8 @@ Rover firmware for STM32 (Next Generation)
 
 This repository contains the [STM32CubeIde](https://www.st.com/en/development-tools/stm32cubeide.html)  project with the firmware to control a 4WD rover. The software and pinout has been customized to the [STM32 F767ZITX microcontroller](https://www.st.com/en/microcontrollers-microprocessors/stm32f767zi.html), but using STM32CubeMx it can be easily ported to other STM32 targets that support CUBEMx HAL.
 
+![Rover](./Documentation/Assets/RoverTopView.jpeg)
+
 **History - Why 'Next Generation'?**
 
 This version is an improvement over previous implementations:
@@ -43,7 +45,7 @@ The [hardware setup section](./Documentation/HardwareSetup.md) describes the pin
 **Procedure**
 
 1. Import project in [STM32CubeIde](https://www.st.com/en/development-tools/stm32cubeide.html) and download to Nucleo.
-2. Communicate with the firmware with the [Python notebooks](./Python/).
+2. Communicate with the firmware with the [Python notebooks](./Python/notebooks) or with the [Playstation 4 controller](./Python/ps4_control.py).
 
 Code organization
 -----------------
@@ -100,4 +102,9 @@ Application/
 Notebooks for development
 -------------------------
 
-[Python code and notebooks](./Python/) are provided to interact with the Rover.
+- [Python code and notebooks](./Python/) are provided to interact with the Rover.
+
+Software for Raspberry Pi and other Linux based computers
+---------------------------------------------------------
+
+Refer to [Raspberry Pi software setup section](./Documentation/RaspberryPiSetup.md) for instructions on how to teleoperate the rover and receive live video.

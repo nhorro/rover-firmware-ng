@@ -1,7 +1,9 @@
 import os
 
-from .serialif import SerialIF
-from .zmqproxyif import ZMQProxy
+from .endpoint.serialif import SerialIF
+#from .endpoint.zmqproxyif import ZMQProxy
+from .endpoint.udpproxyif import UDPProxy
+
 
 from struct import unpack
 from . import simpleprotocol as sp
@@ -59,34 +61,34 @@ class VehicleIF:
         if self.mode == VehicleIF.MODE_DIRECT_SERIAL:
             self.serialif = SerialIF(port = params["port"], baudrate=params["baudrate"])
             self.serialif.set_callback(self._on_received_byte)
-            self.zmqproxyif = None
+            self.proxyif = None
 
             self.serialif.start_listening()
 
         elif self.mode == VehicleIF.MODE_PROXY_VEHICLE:
             self.serialif = SerialIF(port = params["port"], baudrate=params["baudrate"])
             self.serialif.set_callback(self._on_received_byte)
-            self.zmqproxyif = ZMQProxy(
-                publish_port=params["vehicle_port"],
-                subscribe_host=params["groundstation_host"],
-                subscribe_port=params["groundstation_port"] )
+            self.proxyif = UDPProxy(
+                publish_host=params["groundstation_host"],
+                publish_port=params["groundstation_port"],                
+                subscribe_port=params["vehicle_port"] )
 
             # Vehicle proxy handles resends commands to serial
-            self.zmqproxyif.set_callback(self._dispatch_to_serialif)
+            self.proxyif.set_callback(self._dispatch_to_serialif)
 
             self.serialif.start_listening()
-            self.zmqproxyif.start_listening()
+            self.proxyif.start_listening()
 
         elif self.mode == VehicleIF.MODE_PROXY_GROUND:
-            self.zmqproxyif = ZMQProxy(
-                    publish_port=params["groundstation_port"],
-                    subscribe_host=params["vehicle_host"],
-                    subscribe_port=params["vehicle_port"] )
+            self.proxyif = UDPProxy(
+                    publish_host=params["vehicle_host"],
+                    publish_port=params["vehicle_port"],
+                    subscribe_port=params["groundstation_port"] )
 
             # Ground proxy handles received packets just as direct mode
-            self.zmqproxyif.set_callback(self._handle_packet)
+            self.proxyif.set_callback(self._handle_packet)
 
-            self.zmqproxyif.start_listening()
+            self.proxyif.start_listening()
 
         
         self.telemetry_report_handlers = {
@@ -163,9 +165,9 @@ class VehicleIF:
             self.serialif.stop_listening()
         elif self.mode == VehicleIF.MODE_PROXY_VEHICLE:
             self.serialif.stop_listening()
-            self.zmqproxyif.stop_listening()
+            self.proxyif.stop_listening()
         elif self.mode == VehicleIF.MODE_PROXY_GROUND:           
-            self.zmqproxyif.stop_listening()
+            self.proxyif.stop_listening()
         
     def _on_received_byte(self, c):
         self.decoder.feed(ord(c))
@@ -183,7 +185,7 @@ class VehicleIF:
         elif self.mode == VehicleIF.MODE_PROXY_VEHICLE:
             assert(False) # Should never happen
         elif self.mode == VehicleIF.MODE_PROXY_GROUND:            
-            self.zmqproxyif.send_data(self.encoder.get_packet_bytes())
+            self.proxyif.send_data(self.encoder.get_packet_bytes())
         
         #if self.debug:
         print("Sent: {} ({} bytes)".format(
@@ -214,7 +216,7 @@ class VehicleIF:
         elif self.mode == VehicleIF.MODE_PROXY_VEHICLE:
             # In this mode, received packets are telemetry from the vehicle
             # We have to resend them to ground
-            self.zmqproxyif.send_data(payload)
+            self.proxyif.send_data(payload)
         
         
     # =====================================================================
