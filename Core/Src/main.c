@@ -27,8 +27,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "../../Application/Inc/ApplicationConfig.h"
-extern void ApplicationMain(const ApplicationConfig* Config);
+#include "ApplicationConfig.h"
+extern void ApplicationSetup(const ApplicationConfig* Config);
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -98,10 +98,11 @@ int main(void)
   MX_USART1_UART_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-
-  HAL_TIM_Base_Start(&htim2);
-  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);
-  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_4);
+  ApplicationConfig Config;
+  Config.UartTcTmHandle = &huart3; // Development mode (USB)
+  //Config.UartTcTmHandle = &huart1; // Production mode (Rx/Tx pins)
+  Config.PwmTimerHandle = &htim2;
+  ApplicationSetup(&Config);
   /* USER CODE END 2 */
 
   /* Init scheduler */

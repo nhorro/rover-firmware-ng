@@ -5,7 +5,7 @@
  *      Author: MarkSherstan
  */
 
-#include "Sensors/MPU9250.h"
+#include <Sensors/MPU9250/MPU9250.h>
 
 /// @brief MPUXX50 I2C constructor
 /// @param pI2Cx Pointer to I2C structure config

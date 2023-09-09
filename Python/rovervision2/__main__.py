@@ -14,12 +14,16 @@ from pipeline.videoprocessinglayers.display import VideoDisplay
 #from pipeline.videoprocessinglayers.writer import VideoWriter
 
 class RoverVision:
+  SCREEN_WIDTH = 640
+  SCREEN_HEIGHT = 480
 
   def __init__(self, cap):
     self.ctx = {}
     self.cap = cap
 
-    self.hud = RoverHUD(640,480)    
+    
+
+    self.hud = RoverHUD(RoverVision.SCREEN_WIDTH,RoverVision.SCREEN_HEIGHT)    
     self.layers = [      
       self.hud, # 4
       VideoDisplay(), # 5
@@ -41,7 +45,7 @@ class RoverVision:
       l.setup(self.ctx)
 
   def on_frame(self,frame):          
-      self.ctx["frame"] = frame
+      self.ctx["frame"] = cv2.resize(frame, (RoverVision.SCREEN_WIDTH,RoverVision.SCREEN_HEIGHT))
       rows,cols,channels = self.ctx["frame"].shape
       self.ctx["rows"] = rows
       self.ctx["cols"] = cols      

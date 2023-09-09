@@ -1,22 +1,23 @@
 #include "Services/CommandReceiver.h"
-#include "Application.h"
+//#include "Application.h"
 //#include <cstring>
 
-extern Application App;
-
-CommandReceiverService CommandReceiver;
 
 CommandReceiverService::CommandReceiverService()
-	:
-		CommandCallbacks{
-			&CommandReceiverService::CmdControlLeds,
-			&CommandReceiverService::CmdControlMotorManual,
-			&CommandReceiverService::CmdControlMotorAuto,
-			&CommandReceiverService::CmdControlMotorMode,
-			&CommandReceiverService::CmdSetPIDParameters,
-		}
 {
+	 _RtosRes.QueueAttributes.name = "CommandReceiverQueue";
+	 _RtosRes.QueueAttributes.cb_mem = &_RtosRes.QueueControlBlock;
+	 _RtosRes.QueueAttributes.cb_size = sizeof(_RtosRes.QueueControlBlock);
+	 _RtosRes.QueueAttributes.mq_mem = &_RtosRes.QueueBuffer;
+	 _RtosRes.QueueAttributes.mq_size = sizeof(_RtosRes.QueueBuffer);
 
+
+	 _RtosRes.ThreadAttributes.name = "CommandReceiverTask";
+	 _RtosRes.ThreadAttributes.stack_size = 128 * 4;
+	 _RtosRes.ThreadAttributes.priority = (osPriority_t) osPriorityNormal;
+
+
+	 _CurrentCommandMailboxIdx = 0;
 }
 
 CommandReceiverService::~CommandReceiverService()
@@ -24,45 +25,43 @@ CommandReceiverService::~CommandReceiverService()
 
 }
 
-
-void CommandReceiverService::Main(void *argument)
+void CommandReceiverService::Init(UART_HandleTypeDef* UartTcHandle, CommandHandlerCallback CommandHandler)
 {
-	// FIXME: mecanismo provisorio para evitar que la tarea arranque sin haberse inicializado App.Config
-	osDelay(1000);
+	_HalRes.UartTcHandle =  UartTcHandle;
+
+	_RtosRes.QueueHandle = osMessageQueueNew (16, sizeof(uint8_t), &_RtosRes.QueueAttributes);
+	_RtosRes.ThreadId = osThreadNew(CommandReceiverService::CommandReceiverServiceTaskMain, reinterpret_cast<void*>(this), &_RtosRes.ThreadAttributes);
+
+	_CommandHandler = CommandHandler;
+}
+
+void CommandReceiverService::CommandReceiverServiceTaskMain(void *argument)
+{
+	CommandReceiverService* Me = reinterpret_cast<CommandReceiverService*>(argument);
+    Me->Main();
+}
+
+
+void CommandReceiverService::Main()
+{
+	// Start receiving
+	HAL_UART_Receive_IT(_HalRes.UartTcHandle, &_RxBuf, 1);
 
 	for(;;)
 	{
 		// Read Queue
 		uint8_t ReceivedCommandMailboxIdx;
 		osStatus result = osMessageQueueGet(
-				App.Config->CommandReceiverQueueHandle,
+				_RtosRes.QueueHandle,
 				&ReceivedCommandMailboxIdx,
-				0,
-				-1);
-		App.LasOsResult2 = result;
+				0, // Priority (ignored)
+				-1 // Infinite wait
+		);
 
 		if (result== osOK)
 		{
-			// 1. Parse header
-			ApplicationTelecommandHeader Header;
-			const uint8_t* TCData = &App.CommandMailbox[ReceivedCommandMailboxIdx][0];
-			Header.FromBytes(TCData);
-
-			App.LastCommandOpcode = Header.Opcode;
-
-			// 2. Dispatch command
-
-			if (Header.Opcode < ApplicationTelecommandId::NumberOfTelecommands)
-			{
-				bool CommandExecutionResult = (this->*CommandCallbacks[Header.Opcode])(
-						TCData+sizeof(ApplicationTelecommandHeader)
-				);
-				App.LastCommandResult = static_cast<uint32_t>(CommandExecutionResult);
-			}
-			else
-			{
-				App.LastPacketStatus = LastPacketStatusCode::InvalidOpcode;
-			}
+			const uint8_t* TCData = &_CommandMailbox[ReceivedCommandMailboxIdx][0];
+			_CommandHandler(TCData);
 		}
 		else if (result == osErrorTimeout)
 		{
@@ -79,132 +78,56 @@ void CommandReceiverService::Main(void *argument)
 }
 
 
-void CommandReceiverTaskMain(void *argument)
+
+void CommandReceiverService::UpdateISR(UART_HandleTypeDef* UartHandle)
 {
-	CommandReceiver.Main(argument);
-}
-
-
-// --------------------------------------------------------------------------------------------------------
-// Commands
-// --------------------------------------------------------------------------------------------------------
-
-bool CommandReceiverService::CmdControlLeds(const uint8_t* payload)
-{
-	LedControlCommand cmd;
-	cmd.FromBytes(payload);
-	App.LedControlState = cmd.LedControlFlags;
-	HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, (cmd.LedControlFlags & 1) ? GPIO_PIN_SET : GPIO_PIN_RESET );
-	return true;
-}
-
-bool CommandReceiverService::CmdControlMotorManual(const uint8_t* payload)
-{
-	ControlMotorManualCommand cmd;
-	cmd.FromBytes(payload);
-
-	if (App.MotorControlModeFlags & Application::ControlModeFlags::ArmedManual)
+	if(UartHandle == _HalRes.UartTcHandle)
 	{
-		if ( cmd.MotorControlFlags & 1 )
+		protocol::packet_decoder::feed(_RxBuf);
+		HAL_UART_Receive_IT(UartHandle, &_RxBuf, 1);
+	}
+}
+
+
+
+void CommandReceiverService::handle_packet(const uint8_t* payload, uint8_t n)
+{
+	ReceivedPackets++;
+
+	// FIXME: check for available mailboxes
+	if ( true )
+	{
+		LastPacketStatus = LastPacketStatusCode::Ok;
+
+		std::memcpy(&_CommandMailbox[_CurrentCommandMailboxIdx], payload, n);
+
+		osStatus_t result = osMessageQueuePut(
+				_RtosRes.QueueHandle,
+				&_CurrentCommandMailboxIdx,
+				0, // priority ignored.
+				0 // 0 Timeout is required because running in interrupt
+		);
+
+		if ( osStatus_t::osOK == result )
 		{
-			App.MotorThrottles[0] = cmd.MotorAThrottle;
-			if(App.MotorThrottles[0]< -1.0)
-				App.MotorThrottles[0] = -1.0;
-			else if(App.MotorThrottles[0] > 1.0)
-				App.MotorThrottles[0] = 1.0;
+			// Next mailbox
+			_CurrentCommandMailboxIdx++;
+			if (_CurrentCommandMailboxIdx == CircularBufferCapacityInMessages)
+			{
+				_CurrentCommandMailboxIdx = 0;
+			}
 		}
-
-		if ( cmd.MotorControlFlags & 2 )
-		{
-			App.MotorThrottles[1] = cmd.MotorBThrottle;
-			if(App.MotorThrottles[1]< -1.0)
-				App.MotorThrottles[1] = -1.0;
-			else if(App.MotorThrottles[1] > 1.0)
-				App.MotorThrottles[1] = 1.0;
-		}
-
-
-		App.UpdateMotorThrottle(cmd.MotorControlFlags);
-		return true;
 	}
-	else
-	{
-		return false;
-	}
-
-
-
 }
 
-bool CommandReceiverService::CmdControlMotorAuto(const uint8_t* payload)
+void CommandReceiverService::set_error(error_code ec)
 {
-	ControlMotorAutoCommand cmd;
-	cmd.FromBytes(payload);
-
-	if (App.MotorControlModeFlags & Application::ControlModeFlags::ArmedPID)
+	if (ec == invalid_length )
 	{
-		if (cmd.MotorControlFlags & 1)
-		{
-			App.MotorSetpointSpeeds[0] = cmd.MotorASpeed;
-		}
-
-		if (cmd.MotorControlFlags & 2)
-		{
-			App.MotorSetpointSpeeds[1] = cmd.MotorBSpeed;
-		}
-
-		return true;
+		LastPacketStatus = LastPacketStatusCode::InvalidLength;
 	}
-	else
+	else if(ec == bad_crc)
 	{
-		return false;
+		LastPacketStatus = LastPacketStatusCode::BadCRC;
 	}
 }
-
-bool CommandReceiverService::CmdControlMotorMode(const uint8_t* payload)
-{
-	SetMotorControlModeCommand cmd;
-	cmd.FromBytes(payload);
-
-	switch(cmd.MotorControlModeFlags)
-	{
-		case Application::ControlModeFlags::ArmedManual: {
-
-		} break;
-
-		case Application::ControlModeFlags::ArmedPID: {
-
-		} break;
-
-		case Application::ControlModeFlags::Disarmed: {
-
-		} break;
-	}
-
-	App.MotorThrottles[0] = 0.;
-	App.MotorThrottles[1] = 0.;
-	App.MotorSetpointSpeeds[0] = 0.;
-	App.MotorSetpointSpeeds[1] = 0.;
-	App.MotorControlModeFlags = cmd.MotorControlModeFlags;
-	App.UpdateMotorThrottle(3);
-
-	return true;
-}
-
-bool CommandReceiverService::CmdSetPIDParameters(const uint8_t* payload)
-{
-	SetPIDParametersCommand cmd;
-	cmd.FromBytes(payload);
-
-	App.PID[0].reset();
-	App.PID[0].Kp = cmd.Kp;
-	App.PID[0].Ki = cmd.Ki;
-	App.PID[0].Kd = cmd.Kd;
-	App.PID[1].reset();
-	App.PID[1].Kp = cmd.Kp;
-	App.PID[1].Ki = cmd.Ki;
-	App.PID[1].Kd = cmd.Kd;
-
-	return true;
-}
-

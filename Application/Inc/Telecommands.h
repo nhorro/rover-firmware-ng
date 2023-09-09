@@ -13,6 +13,7 @@ enum ApplicationTelecommandId {
 	ControlMotorAuto,
 	SetMotorControlMode,
 	CmdSetPIDParameters,
+	// New commands here
 	NumberOfTelecommands
 };
 

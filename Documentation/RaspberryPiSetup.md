@@ -1,7 +1,7 @@
-Raspberry PI Application Note - Manned teleoperated Rover
+Raspberry PI Software Setup for Manned teleoperated Rover
 =========================================================
 
-
+This document describes how to setup the software in the Raspberry Pi to receive commands from a control station and publish live video.
 
 Software architecture overview
 ------------------------------
@@ -19,6 +19,8 @@ Software installation procedure
 2. Live video with GStreamer.
 
 ### Basic software
+
+The Raspberry Pi SD image is based in [Raspberry Pi image from Ubiquity Robotics](https://www.ubiquityrobotics.com/downloads-raspberry-pi/), which comes with ROS pre-installed. This procedure has been written for Raspberry Pi 3B+ but it should apply to other models. Some sections are also applicable to other SBCs running Ubuntu, such as NVIDIA Jetson.
 
 #### UART configuration.
 
@@ -133,5 +135,5 @@ Work in progress.
 
 #### Live video
 
-See Gsteramer scripts for video [publication](../Scripts/publish_video.sh) and [reception](../Scripts/receive_video.sh).
+See Gstreamer scripts for video [publication](../Scripts/publish_video.sh) and [reception](../Scripts/receive_video.sh).
 
