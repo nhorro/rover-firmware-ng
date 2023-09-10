@@ -9,22 +9,22 @@ void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin)
 	switch(GPIO_Pin)
 	{
 		case TACHO1_Pin: {
-			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+			//HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 			TachometerUpdateFlags |= App.Tachometers[0].UpdateISR() << 0;
 		} break;
 
 		case TACHO2_Pin: {
-			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+			//HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 			TachometerUpdateFlags |= App.Tachometers[1].UpdateISR() << 1;
 		} break;
 
 		case TACHO3_Pin: {
-			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+			//HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 			TachometerUpdateFlags |= App.Tachometers[2].UpdateISR() << 2;
 		} break;
 
 		case TACHO4_Pin: {
-			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+			//HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 			TachometerUpdateFlags |= App.Tachometers[3].UpdateISR() << 3;
 		} break;
 
@@ -36,6 +36,7 @@ void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin)
 	if ( TachometerUpdateFlags )
 	{
 		// Notify tachometer was updated
+        // Signal the main control loop task that new data is available (e.g., using an interrupt-safe flag or event)
 	}
 }
 
@@ -74,12 +75,15 @@ void Application::Setup(const ApplicationConfig* Config)
 	// This should come from Config but we are too lazy now.
 	MotorConfig.ControlPins[L298NMotorController::L298Pins::IN1].GPIOPort = L298N_IN1_GPIO_Port;
 	MotorConfig.ControlPins[L298NMotorController::L298Pins::IN1].GPIOPin = L298N_IN1_Pin;
+
 	MotorConfig.ControlPins[L298NMotorController::L298Pins::IN2].GPIOPort = L298N_IN2_GPIO_Port;
-	MotorConfig.ControlPins[L298NMotorController::L298Pins::IN2].GPIOPin = L298N_IN1_Pin;
-	MotorConfig.ControlPins[L298NMotorController::L298Pins::IN3].GPIOPort = L298N_IN1_GPIO_Port;
-	MotorConfig.ControlPins[L298NMotorController::L298Pins::IN3].GPIOPin = L298N_IN1_Pin;
-	MotorConfig.ControlPins[L298NMotorController::L298Pins::IN4].GPIOPort = L298N_IN2_GPIO_Port;
-	MotorConfig.ControlPins[L298NMotorController::L298Pins::IN4].GPIOPin = L298N_IN1_Pin;
+	MotorConfig.ControlPins[L298NMotorController::L298Pins::IN2].GPIOPin = L298N_IN2_Pin;
+
+	MotorConfig.ControlPins[L298NMotorController::L298Pins::IN3].GPIOPort = L298N_IN3_GPIO_Port;
+	MotorConfig.ControlPins[L298NMotorController::L298Pins::IN3].GPIOPin = L298N_IN3_Pin;
+
+	MotorConfig.ControlPins[L298NMotorController::L298Pins::IN4].GPIOPort = L298N_IN4_GPIO_Port;
+	MotorConfig.ControlPins[L298NMotorController::L298Pins::IN4].GPIOPin = L298N_IN4_Pin;
 
 	MotorConfig.PWMOuts[0].PWMTimerHandle = Config->PwmTimerHandle;
 	MotorConfig.PWMOuts[0].Channel = TIM_CHANNEL_3;
@@ -87,7 +91,9 @@ void Application::Setup(const ApplicationConfig* Config)
 	MotorConfig.PWMOuts[1].Channel = TIM_CHANNEL_4;
 
 	CommandReceiver.Init(Config->UartTcTmHandle, std::bind(&Application::HandleTelecommand, this, std::placeholders::_1) );
+
 	MainControlLoop.Init();
+
 	TelemetrySender.Init(Config->UartTcTmHandle);
 
 
@@ -132,7 +138,7 @@ bool Application::CmdControlLeds(const uint8_t* payload)
 	LedControlCommand cmd;
 	cmd.FromBytes(payload);
 
-	//App.LedControlState = cmd.LedControlFlags;
+	App.LedControlState = cmd.LedControlFlags;
 	HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, (cmd.LedControlFlags & 1) ? GPIO_PIN_SET : GPIO_PIN_RESET );
 
 	return true;
@@ -146,8 +152,17 @@ bool Application::CmdControlMotorManual(const uint8_t* payload)
 
 	if (MotorControlModeFlags & Application::ControlModeFlags::ArmedManual)
 	{
-		float MotorThrottles[2] = { cmd.MotorAThrottle, cmd.MotorBThrottle };
-		MotorControl.UpdateMotorThrottles(MotorThrottles, static_cast<L298NMotorController::MotorControlFlags>(cmd.MotorControlFlags));
+		if(cmd.MotorControlFlags&L298NMotorController::MotorControlFlags::A)
+		{
+			MotorControl.MotorThrottles[0] = cmd.MotorAThrottle;
+		}
+
+		if(cmd.MotorControlFlags&L298NMotorController::MotorControlFlags::B)
+		{
+			MotorControl.MotorThrottles[1] = cmd.MotorBThrottle;
+		}
+
+		MotorControl.UpdateMotorThrottles(static_cast<L298NMotorController::MotorControlFlags>(cmd.MotorControlFlags));
 		return true;
 	}
 	else
@@ -216,8 +231,6 @@ bool Application::CmdSetPIDParameters(const uint8_t* payload)
 	SetPIDParametersCommand cmd;
 	cmd.FromBytes(payload);
 
-	/*
-
 	App.PID[0].reset();
 	App.PID[0].Kp = cmd.Kp;
 	App.PID[0].Ki = cmd.Ki;
@@ -226,7 +239,7 @@ bool Application::CmdSetPIDParameters(const uint8_t* payload)
 	App.PID[1].Kp = cmd.Kp;
 	App.PID[1].Ki = cmd.Ki;
 	App.PID[1].Kd = cmd.Kd;
-	*/
+
 
 	return true;
 }

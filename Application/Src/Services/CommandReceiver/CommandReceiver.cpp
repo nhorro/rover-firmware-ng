@@ -73,7 +73,7 @@ void CommandReceiverService::Main()
 		}
 
 		//osDelay(1000);
-		//HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+
 	}
 }
 

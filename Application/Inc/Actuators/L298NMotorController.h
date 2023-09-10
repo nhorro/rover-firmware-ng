@@ -33,9 +33,9 @@ public:
 		IN4 = 3
 	};
 
-	void UpdateMotorThrottles(float MotorThrottles[2], MotorControlFlags Flags);
+	void UpdateMotorThrottles(MotorControlFlags Flags);
 
-	inline const float* GetMotorThrottles() const { return _MotorThrottles; }
+	float MotorThrottles[2];
 
 	STM32HALResources& GetHALResourceConfig() { return _HalRes; }
 
@@ -43,7 +43,7 @@ public:
 	void Shutdown();
 private:
 	STM32HALResources _HalRes;
-	float _MotorThrottles[2];
+
 
 	void SetPWM(TIM_HandleTypeDef* timer, uint32_t channel, uint16_t pulse);
 };

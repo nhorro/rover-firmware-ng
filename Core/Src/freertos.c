@@ -112,6 +112,10 @@ void MX_FREERTOS_Init(void) {
 void DefaultTaskMain(void *argument)
 {
   /* USER CODE BEGIN DefaultTaskMain */
+	for(;;)
+	{
+		osDelay(1000);
+	}
   /* USER CODE END DefaultTaskMain */
 }
 

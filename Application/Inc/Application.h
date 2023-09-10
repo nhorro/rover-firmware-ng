@@ -8,7 +8,12 @@
 #include "Telemetry.h"
 
 #include "Actuators/L298NMotorController.h"
+
 #include "Sensors/LM393Tachometer.h"
+
+#include "Filters/Median.hpp"
+
+#include "Controllers/PID.h"
 
 #include "Services/CommandReceiver.h"
 #include "Services/MainControlLoop.h"
@@ -34,6 +39,7 @@ public:
 	uint32_t IMUStateOk = 0;
 	uint32_t MotorControlModeFlags = ControlModeFlags::Disarmed;
 
+
 	// Actuators
 	enum ControlModeFlags {
 			Disarmed=0,
@@ -50,8 +56,11 @@ public:
 	MainControlLoopService MainControlLoop;
 	TelemetrySenderService TelemetrySender;
 
-
+	MedianFilter<11> MedianFilters[4];
+	float MeasuredSpeed[4] = {0.0, 0.0, 0.0, 0.0 };
 	float MotorSetpointSpeeds[2] = {0,0};
+
+	PIDController PID[2];
 
 private:
 

@@ -1,5 +1,5 @@
 
-#include "Controllers/PidController.h"
+#include "Controllers/PID.h"
 
 PIDController::PIDController()
 {
@@ -39,10 +39,11 @@ float PIDController::Process(float SetpointSpeed, float measuredSpeed)
 	// According to the IEEE standard, NaN values have the odd property that
 	// comparisons involving them are always false.
 	// That is, for a float f, f != f will be true only if f is NaN.
-	if ( controlSignal == controlSignal)
+	if ( controlSignal != controlSignal)
 	{
 		controlSignal = 0.0f;
 	}
+
 
 	return controlSignal;
 

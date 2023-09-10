@@ -29,6 +29,16 @@ void TelemetrySenderService::Init(UART_HandleTypeDef* UartTmHandle)
 
 void TelemetrySenderService::Main()
 {
+	/*
+	for(size_t i=0;i<10;i++)
+	{
+		HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET );
+		osDelay(1000);
+		HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET );
+		osDelay(1000);
+	}
+	*/
+
 	for(;;)
 	{
 		OnBoardTime = HAL_GetTick();
@@ -39,9 +49,9 @@ void TelemetrySenderService::Main()
 		osDelay(200);
 		SendIMUReport();
 		osDelay(200);
-		HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
 
 		TelemetryCycle+=1;
+		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 	}
 }
 
@@ -71,20 +81,19 @@ void TelemetrySenderService::SendMotorReport()
 	_MotorControlTelemetry.TelemetryCycle = __builtin_bswap32(TelemetryCycle);
 	_MotorControlTelemetry.OnBoardTime = __builtin_bswap32(OnBoardTime);
 
-	_MotorControlTelemetry.Throttle1 = __builtin_bswap32(reinterpret_cast<const uint32_t&>(App.MotorControl.GetMotorThrottles()[0]));;
-	_MotorControlTelemetry.Throttle2 = __builtin_bswap32(reinterpret_cast<const uint32_t&>(App.MotorControl.GetMotorThrottles()[1]));;
+	_MotorControlTelemetry.Throttle1 = __builtin_bswap32(reinterpret_cast<const uint32_t&>(App.MotorControl.MotorThrottles[0]));;
+	_MotorControlTelemetry.Throttle2 = __builtin_bswap32(reinterpret_cast<const uint32_t&>(App.MotorControl.MotorThrottles[1]));;
 
 	_MotorControlTelemetry.Tachometer1 = __builtin_bswap32(App.Tachometers[0].TickCount);
 	_MotorControlTelemetry.Tachometer2 = __builtin_bswap32(App.Tachometers[1].TickCount);
 	_MotorControlTelemetry.Tachometer3 = __builtin_bswap32(App.Tachometers[2].TickCount);
 	_MotorControlTelemetry.Tachometer4 = __builtin_bswap32(App.Tachometers[3].TickCount);
 
-	/*
-	_MotorControlTelemetry.MeasuredSpeed1 = __builtin_bswap32(reinterpret_cast<uint32_t&>(App.TachometerMeasuredSpeed[0]));
-	_MotorControlTelemetry.MeasuredSpeed2 = __builtin_bswap32(reinterpret_cast<uint32_t&>(App.TachometerMeasuredSpeed[1]));
-	_MotorControlTelemetry.MeasuredSpeed3 = __builtin_bswap32(reinterpret_cast<uint32_t&>(App.TachometerMeasuredSpeed[2]));
-	_MotorControlTelemetry.MeasuredSpeed4 = __builtin_bswap32(reinterpret_cast<uint32_t&>(App.TachometerMeasuredSpeed[3]));
-	*/
+	_MotorControlTelemetry.MeasuredSpeed1 = __builtin_bswap32(reinterpret_cast<uint32_t&>(App.MeasuredSpeed[0]));
+	_MotorControlTelemetry.MeasuredSpeed2 = __builtin_bswap32(reinterpret_cast<uint32_t&>(App.MeasuredSpeed[1]));
+	_MotorControlTelemetry.MeasuredSpeed3 = __builtin_bswap32(reinterpret_cast<uint32_t&>(App.MeasuredSpeed[2]));
+	_MotorControlTelemetry.MeasuredSpeed4 = __builtin_bswap32(reinterpret_cast<uint32_t&>(App.MeasuredSpeed[3]));
+
 
 	_MotorControlTelemetry.SetpointSpeed1 = __builtin_bswap32(reinterpret_cast<uint32_t&>(App.MotorSetpointSpeeds[0]));
 	_MotorControlTelemetry.SetpointSpeed2 = __builtin_bswap32(reinterpret_cast<uint32_t&>(App.MotorSetpointSpeeds[1]));

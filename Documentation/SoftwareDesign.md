@@ -50,6 +50,8 @@ typedef struct _ApplicationConfig{
 
 	// MPU9250
 	I2C_HandleTypeDef *MPU9250I2CHandle;
+
+    // More HAL descriptors here...
 } ApplicationConfig;
 
 #endif // APPLICATION_CONFIG_H
