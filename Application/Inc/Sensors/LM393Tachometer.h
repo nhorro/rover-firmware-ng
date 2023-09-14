@@ -2,6 +2,8 @@
 
 #include "main.h"
 
+#include <cstdio>
+
 #include <Filters/MovingAverage.hpp>
 
 class LM393Tachometer {
@@ -30,6 +32,7 @@ public:
 			// FIXME: too close IRQs might be an error that would be useful to detect.
 			AverageDeltaTimeBetweenTicks = Filter.process(TachometerDeltaAtMaxRPMInMs);
 		}
+		printf("%i", AverageDeltaTimeBetweenTicks);
 
 		return HasValidMeasure;
 	}

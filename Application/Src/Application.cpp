@@ -3,41 +3,23 @@
 Application App;
 
 
+
+static uint32_t TachoLastTs[4] = { 0, 0, 0, 0 };	// Last timestamp in ms
+static uint32_t TachoDT[4] = { 0, 0, 0, 0 }; 		// Deltatime with respect to last timestamp
+static float AppliedThrottle[2] = { 0, 0 };
+
 void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin)
 {
-	uint32_t TachometerUpdateFlags = 0;
+	uint32_t CurrTS = HAL_GetTick();
 	switch(GPIO_Pin)
 	{
-		case TACHO1_Pin: {
-			//HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-			TachometerUpdateFlags |= App.Tachometers[0].UpdateISR() << 0;
-		} break;
-
-		case TACHO2_Pin: {
-			//HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-			TachometerUpdateFlags |= App.Tachometers[1].UpdateISR() << 1;
-		} break;
-
-		case TACHO3_Pin: {
-			//HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-			TachometerUpdateFlags |= App.Tachometers[2].UpdateISR() << 2;
-		} break;
-
-		case TACHO4_Pin: {
-			//HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-			TachometerUpdateFlags |= App.Tachometers[3].UpdateISR() << 3;
-		} break;
-
-		default: {
-			__NOP();
-		}
+		case TACHO1_Pin: { 	TachoDT[0] =  CurrTS - TachoLastTs[0]; TachoLastTs[0] = CurrTS; } break;
+		case TACHO2_Pin: {  TachoDT[1] =  CurrTS - TachoLastTs[1]; TachoLastTs[1] = CurrTS; } break;
+		case TACHO3_Pin: {  TachoDT[2] =  CurrTS - TachoLastTs[2]; TachoLastTs[2] = CurrTS; } break;
+		case TACHO4_Pin: {  TachoDT[3] =  CurrTS - TachoLastTs[3]; TachoLastTs[3] = CurrTS; } break;
+		default: { __NOP(); }
 	};
-
-	if ( TachometerUpdateFlags )
-	{
-		// Notify tachometer was updated
-        // Signal the main control loop task that new data is available (e.g., using an interrupt-safe flag or event)
-	}
+	//HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 }
 
 
@@ -149,6 +131,9 @@ bool Application::CmdControlMotorManual(const uint8_t* payload)
 {
 	ControlMotorManualCommand cmd;
 	cmd.FromBytes(payload);
+
+	// Debug
+	AppliedThrottle[0] = cmd.MotorAThrottle;
 
 	if (MotorControlModeFlags & Application::ControlModeFlags::ArmedManual)
 	{
