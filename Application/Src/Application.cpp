@@ -6,7 +6,7 @@ Application App;
 
 static uint32_t TachoLastTs[4] = { 0, 0, 0, 0 };	// Last timestamp in ms
 static uint32_t TachoDT[4] = { 0, 0, 0, 0 }; 		// Deltatime with respect to last timestamp
-static float AppliedThrottle[2] = { 0, 0 };
+static float AppliedThrottle[2] = { 0, 0 };			// Applied throttle
 
 void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin)
 {
