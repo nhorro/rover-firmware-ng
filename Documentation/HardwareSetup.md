@@ -44,10 +44,12 @@ Notes:
 | ------------- | -------------------- | ---------- |
 | GND           | GND                  |            |
 | 3.3V          | VCC                  |            |
-| PF_10 (CN9)   | DO (Tacho 1, LF)     | Brown      |
-| PC_2  (CN11)  | DO (Tacho 2, RF)     | White      |
-| PG_9  (CN11)  | DO (Tacho  3, LB)    | Blue       |
-| PG14  (CN10)  | DO (Tacho 4, LF)     | Green      |
+| XXX (CNYY)    | DO (Tacho 1, LF)     | Brown      |
+| XXX (CNYY)    | DO (Tacho 2, RF)     | White      |
+| XXX (CNYY)    | DO (Tacho  3, LB)    | Blue       |
+| XXX (CNYY)    | DO (Tacho 4, LF)     | Green      |
+
+**UPDATE!!* Tachometer pinout changed!!!
 
 
 ### UART (to connect to other computer)

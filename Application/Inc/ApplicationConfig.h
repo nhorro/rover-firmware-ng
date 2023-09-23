@@ -7,6 +7,7 @@
 typedef struct _ApplicationConfig{
 	UART_HandleTypeDef* UartTcTmHandle;
 	TIM_HandleTypeDef*  PwmTimerHandle;
+	TIM_HandleTypeDef* TachoTimerHandlers[4];
 
 	// MPU9250
 	//I2C_HandleTypeDef *MPU9250I2CHandle;

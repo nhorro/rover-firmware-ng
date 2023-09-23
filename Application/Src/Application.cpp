@@ -3,25 +3,10 @@
 Application App;
 
 
-
-static uint32_t TachoLastTs[4] = { 0, 0, 0, 0 };	// Last timestamp in ms
-static uint32_t TachoDT[4] = { 0, 0, 0, 0 }; 		// Deltatime with respect to last timestamp
+static uint32_t TachoLastCount[4] = { 0, 0, 0, 0 };
+static uint32_t TachoDelta[4] = { 0, 0, 0, 0 };
+static float TachoSpeed[4] = { 0, 0, 0, 0 };
 static float AppliedThrottle[2] = { 0, 0 };			// Applied throttle
-
-void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin)
-{
-	uint32_t CurrTS = HAL_GetTick();
-	switch(GPIO_Pin)
-	{
-		case TACHO1_Pin: { 	TachoDT[0] =  CurrTS - TachoLastTs[0]; TachoLastTs[0] = CurrTS; } break;
-		case TACHO2_Pin: {  TachoDT[1] =  CurrTS - TachoLastTs[1]; TachoLastTs[1] = CurrTS; } break;
-		case TACHO3_Pin: {  TachoDT[2] =  CurrTS - TachoLastTs[2]; TachoLastTs[2] = CurrTS; } break;
-		case TACHO4_Pin: {  TachoDT[3] =  CurrTS - TachoLastTs[3]; TachoLastTs[3] = CurrTS; } break;
-		default: { __NOP(); }
-	};
-	//HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-}
-
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* UartHandle)
 {
@@ -32,6 +17,7 @@ void ApplicationSetup(const ApplicationConfig* Config)
 {
 	App.Setup(Config);
 }
+
 
 
 
@@ -72,6 +58,21 @@ void Application::Setup(const ApplicationConfig* Config)
 	MotorConfig.PWMOuts[1].PWMTimerHandle = Config->PwmTimerHandle;
 	MotorConfig.PWMOuts[1].Channel = TIM_CHANNEL_4;
 
+
+	// BEGIN WIP Tachometers
+	//HAL_TIM_IC_Start_DMA(TachoTimerHandle, TIM_CHANNEL_1, &TachoCount[0], 1);
+	TachoTimerHandlers[0] = Config->TachoTimerHandlers[0];
+	TachoTimerHandlers[1] = Config->TachoTimerHandlers[1];
+	TachoTimerHandlers[2] = Config->TachoTimerHandlers[2];
+	TachoTimerHandlers[3] = Config->TachoTimerHandlers[3];
+	HAL_TIM_Base_Start(TachoTimerHandlers[0]);
+	HAL_TIM_Base_Start(TachoTimerHandlers[1]);
+	HAL_TIM_Base_Start(TachoTimerHandlers[2]);
+	HAL_TIM_Base_Start(TachoTimerHandlers[3]);
+	// END WIP Tachometer
+
+
+
 	CommandReceiver.Init(Config->UartTcTmHandle, std::bind(&Application::HandleTelecommand, this, std::placeholders::_1) );
 
 	MainControlLoop.Init();
@@ -109,6 +110,18 @@ void Application::HandleTelecommand(const uint8_t* TCData)
 }
 
 
+void Application::ReadTachometers()
+{
+	for(size_t TachoIdx=0;TachoIdx<4;TachoIdx++)
+	{
+		uint32_t CurrentCount = __HAL_TIM_GetCounter(TachoTimerHandlers[TachoIdx]);
+		TachoDelta[TachoIdx] = CurrentCount - TachoLastCount[TachoIdx];
+		TachoLastCount[TachoIdx] = CurrentCount;
+		__HAL_TIM_SetCounter(TachoTimerHandlers[TachoIdx], 0);
+
+		// TODO: estimate speed.
+	}
+}
 
 
 // --------------------------------------------------------------------------------------------------------

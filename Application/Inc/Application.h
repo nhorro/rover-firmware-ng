@@ -62,6 +62,11 @@ public:
 
 	PIDController PID[2];
 
+
+	// WIP
+	TIM_HandleTypeDef* TachoTimerHandlers[4];
+	void ReadTachometers();
+
 private:
 
 

@@ -114,7 +114,7 @@ void DefaultTaskMain(void *argument)
   /* USER CODE BEGIN DefaultTaskMain */
 	for(;;)
 	{
-		printf("I'm alive!!!\r\n");
+		//printf("I'm alive!!!\r\n");
 		osDelay(1000);
 	}
   /* USER CODE END DefaultTaskMain */

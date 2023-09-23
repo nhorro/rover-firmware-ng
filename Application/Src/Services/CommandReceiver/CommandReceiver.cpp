@@ -29,7 +29,7 @@ void CommandReceiverService::Init(UART_HandleTypeDef* UartTcHandle, CommandHandl
 {
 	_HalRes.UartTcHandle =  UartTcHandle;
 
-	_RtosRes.QueueHandle = osMessageQueueNew (16, sizeof(uint8_t), &_RtosRes.QueueAttributes);
+	_RtosRes.QueueHandle = osMessageQueueNew (CircularBufferCapacityInMessages, sizeof(uint8_t), &_RtosRes.QueueAttributes);
 	_RtosRes.ThreadId = osThreadNew(CommandReceiverService::CommandReceiverServiceTaskMain, reinterpret_cast<void*>(this), &_RtosRes.ThreadAttributes);
 
 	_CommandHandler = CommandHandler;

@@ -9,7 +9,6 @@ extern Application App;
 
 
 
-
 MainControlLoopService::MainControlLoopService()
 {
 	_RtosRes.ThreadAttributes.name = "MainControlTask";
@@ -35,28 +34,18 @@ void MainControlLoopService::Init()
 
 void MainControlLoopService::Main()
 {
-	static constexpr const uint32_t UpdateFreqInHz = 200;
+	static constexpr const uint32_t UpdateFreqInHz = 100;
 	for(;;)
 	{
-		// Compute speeds
-		for(size_t TachoIdx = 0; TachoIdx<4;TachoIdx++)
-		{
-			App.Tachometers[TachoIdx].DetectInactivity();
+		App.ReadTachometers();
 
-			if (App.Tachometers[TachoIdx].HasValidMeasure)
-			{
-				App.MeasuredSpeed[TachoIdx] = App.MedianFilters[TachoIdx].Process(
-						LM393Tachometer::TachometerDeltaAt1RPMInMs / App.Tachometers[TachoIdx].AverageDeltaTimeBetweenTicks );
-			}
-			else
-			{
-				App.MeasuredSpeed[TachoIdx] = 0;
-			}
-		}
+		// Compute speeds
+		//App.MeasuredSpeed[TachoIdx] = 0;
 
 		// PID mode
 		if (App.MotorControlModeFlags & Application::ControlModeFlags::ArmedPID)
 		{
+			/*
 			App.MotorControl.MotorThrottles[0] = App.PID[0].Process(
 					App.MotorSetpointSpeeds[0],
 					(App.MeasuredSpeed[0]+App.MeasuredSpeed[1])/2
@@ -68,6 +57,7 @@ void MainControlLoopService::Main()
 			);
 
 			App.MotorControl.UpdateMotorThrottles(L298NMotorController::MotorControlFlags::Both);
+			*/
 
 			HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
 		}

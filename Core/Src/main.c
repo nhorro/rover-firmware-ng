@@ -70,7 +70,7 @@ void MX_FREERTOS_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	printf("Application started\r\n");
+	//printf("Application started\r\n");
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -92,16 +92,25 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USART3_UART_Init();
   MX_USB_OTG_FS_PCD_Init();
   MX_TIM2_Init();
   MX_USART1_UART_Init();
   MX_I2C1_Init();
+  MX_USART3_UART_Init();
+  MX_TIM3_Init();
+  MX_TIM4_Init();
+  MX_TIM5_Init();
+  MX_TIM8_Init();
   /* USER CODE BEGIN 2 */
   ApplicationConfig Config;
-  Config.UartTcTmHandle = &huart3; // Development mode (USB)
-  //Config.UartTcTmHandle = &huart1; // Production mode (Rx/Tx pins)
+  //Config.UartTcTmHandle = &huart3; // Development mode (USB)
+  Config.UartTcTmHandle = &huart1; // Production mode (Rx/Tx pins)
   Config.PwmTimerHandle = &htim2;
+  Config.TachoTimerHandlers[0] = &htim3;
+  Config.TachoTimerHandlers[1] = &htim4;
+  Config.TachoTimerHandlers[2] = &htim5;
+  Config.TachoTimerHandlers[3] = &htim8;
+
   ApplicationSetup(&Config);
   /* USER CODE END 2 */
 
