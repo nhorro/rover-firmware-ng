@@ -66,7 +66,8 @@ async def ps4_controller_listener(serial_port, control_send_frequency):
 
 if __name__ == "__main__":      
     GROUNDSTATION_PORT = 5557
-    VEHICLE_HOST = "192.168.1.63"
+    #VEHICLE_HOST = "192.168.0.113"
+    VEHICLE_HOST = "192.168.4.1"
     VEHICLE_PORT = 5558
 
 
